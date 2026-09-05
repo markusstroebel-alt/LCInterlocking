@@ -37,9 +37,13 @@ class TabProperties(helper.ObjectProperties):
     _allowed = ('face_name', 'y_length', 'thickness', 'tabs_width', 'tabs_number', 'tabs_shift',
                 'dog_bone', 'tab_dog_bone', 'screw_diameter', 'screw_length', 'screw_length_tol', 'makeScrew',
                 'y_invert', 'half_tab_ratio', 'interval_ratio', 'freecad_obj_name',
-                'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'transform_matrix')
+                'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'transform_matrix',
+                'nut_flat_flat', 'nut_height', 'use_washer', 'washer_diameter', 'washer_thickness')
 
     __count = 0
+
+    # Suggested defaults for new connections, updated with the last values used by the user.
+    _last_nut_washer_values = {}
 
     @classmethod
     def _count(cls):
@@ -87,6 +91,25 @@ class TabProperties(helper.ObjectProperties):
             self.screw_length = 15.
         if not hasattr(self, 'screw_length_tol'):
             self.screw_length_tol = 0.5
+        nut_spec = helper.get_screw_nut_spec(self.screw_diameter, self.screw_length)
+        washer_spec = helper.get_washer_spec(self.screw_diameter)
+        if not hasattr(self, 'nut_flat_flat'):
+            self.nut_flat_flat = self._last_nut_washer_values.get('nut_flat_flat', nut_spec.nut_flat_flat)
+        if not hasattr(self, 'nut_height'):
+            self.nut_height = self._last_nut_washer_values.get('nut_height', nut_spec.nut_height)
+        if not hasattr(self, 'use_washer'):
+            self.use_washer = self._last_nut_washer_values.get('use_washer', False)
+        if not hasattr(self, 'washer_diameter'):
+            self.washer_diameter = self._last_nut_washer_values.get('washer_diameter', washer_spec.washer_diameter)
+        if not hasattr(self, 'washer_thickness'):
+            self.washer_thickness = self._last_nut_washer_values.get('washer_thickness', washer_spec.washer_thickness)
+        TabProperties._last_nut_washer_values = {
+            'nut_flat_flat': self.nut_flat_flat,
+            'nut_height': self.nut_height,
+            'use_washer': self.use_washer,
+            'washer_diameter': self.washer_diameter,
+            'washer_thickness': self.washer_thickness,
+        }
         if not hasattr(self, 'dog_bone'):
             self.dog_bone = True
         if not hasattr(self, 'tab_dog_bone'):
