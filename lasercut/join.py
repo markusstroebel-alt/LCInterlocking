@@ -71,7 +71,7 @@ def screw_way_on_plane(material_plane, screw_nut_spec, pos_y):
     return cylinder
 
 
-def screw_way_on_face(material_face, material_plane, screw_nut_spec, pos_y, dog_bone=False):
+def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y, dog_bone=False):
     # horizontal hole
     vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
                             + material_plane.thickness_tolerance + screw_nut_spec.screw_length_tol
@@ -84,17 +84,27 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, pos_y, dog_
         screw_hole = helper.make_dog_bone_on_limits_on_xy(screw_hole, corrected_height, True)
     x_pos = -vert_corrected_length
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
+    hole = screw_hole
+
+    # Washer hole, directly adjacent between the screw hole and the nut hole
+    nut_x_pos = -vert_corrected_length + tab.nut_height + screw_nut_spec.screw_length_tol
+    if tab.use_washer:
+        washer_radius = (tab.washer_diameter - material_face.laser_beam_diameter) / 2.0
+        washer_hole = Part.makeCylinder(washer_radius, corrected_height,
+                                        FreeCAD.Vector(nut_x_pos, pos_y, -corrected_height / 2.0))
+        hole = hole.fuse(washer_hole)
+        nut_x_pos += tab.washer_thickness
+
     # Nut hole
-    corrected_length = screw_nut_spec.nut_height - material_face.laser_beam_diameter + 0.1
-    corrected_width = screw_nut_spec.nut_flat_flat - material_face.laser_beam_diameter + 0.1
+    corrected_length = tab.nut_height - material_face.laser_beam_diameter + 0.1
+    corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter + 0.1
     nut_hole = Part.makeBox(corrected_length, corrected_width, corrected_height,
                             FreeCAD.Vector(0,
                                            -corrected_width / 2.0, -corrected_height / 2.0))
-    x_pos = -vert_corrected_length + screw_nut_spec.nut_height + screw_nut_spec.screw_length_tol
-    nut_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
+    nut_hole.translate(FreeCAD.Vector(nut_x_pos, pos_y, 0))
     if dog_bone:
         nut_hole = helper.make_dog_bone_on_limits_on_xy(nut_hole, corrected_height)
-    hole = screw_hole.fuse(nut_hole)
+    hole = hole.fuse(nut_hole)
     return hole
 
 
@@ -249,7 +259,7 @@ def make_tslot_tab_join(tab, tab_part, other_parts):
                 part_interactor.toRemove.append(helper.transform_part(right_hole, tab))
 
                 screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
-                                                        screw_nut_spec, y, tab.dog_bone)
+                                                        screw_nut_spec, tab, y, tab.dog_bone)
                 screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_nut_spec, y)
 
                 tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
