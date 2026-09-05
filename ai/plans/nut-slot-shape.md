@@ -1,29 +1,54 @@
-# Plan: Auswählbare Form des Mutter-Slots (Vierkantmutter / Unterlegscheibe)
+# Plan: Fräs-/lasertaugliche Mutter-Tasche (Unterlegscheibe unter Mutter / Vierkantmutter)
 
 ## Ziel/Beschreibung
-Aktuell erzeugt der T-Slot/Screw-Verbindungstyp (`lasercut/join.py:screw_way_on_face`) immer eine
-rechteckige Tasche für die Mutter (Breite = `nut_flat_flat`, Länge = `nut_height`), passend für eine
-Vierkant-/Sechskantmutter mit Verdrehsicherung. Der Nutzer möchte stattdessen wahlweise auch eine
-runde Tasche für eine Unterlegscheibe (Washer) erzeugen können, z.B. wenn keine Mutter, sondern nur
-eine Unterlegscheibe unter dem Schraubenkopf/der Mutter sitzt.
+Teile werden per Laser oder 3-Achsen-CNC gefertigt — beides als **Durchgangsschnitt** (keine
+Teiltiefen-Taschen, gemäß Nutzer-Vorgabe). Die aktuelle Mutter-Tasche in `screw_way_on_face`
+(lasercut/join.py) ist eine einzelne rechteckige Durchgangs-Tasche (Breite = `nut_flat_flat`,
+Länge = `nut_height`), direkt neben der Tasche für den Schraubenschaft (`screw_hole`), beide entlang
+der Schraubenachse (X) aneinandergereiht und komplett durchs Material geschnitten.
+
+Ziel ist, die 2D-Geometrie so zu erweitern, dass wahlweise:
+1. zusätzlich eine runde Durchgangs-Tasche für eine Unterlegscheibe (definierbarer Durchmesser)
+   zwischen Schrauben- und Mutter-Tasche eingefügt wird, oder
+2. die Mutter-Tasche für eine Vierkantmutter statt der aktuellen Muttergeometrie ausgelegt wird
+   (Schlüsselweite/Breite entsprechend anpassbar).
+
+Da alles ein reiner Durchgangsschnitt bleibt, ist keine Teiltiefen-/Pocket-Logik nötig — die neue
+Geometrie ist einfach eine weitere durchgängig geschnittene Fläche (Kreis bzw. angepasste Box), die
+mit den bestehenden Formen (`Part.fuse`) vereinigt wird, analog zur bestehenden
+`screw_hole.fuse(nut_hole)`-Logik.
 
 ## Geplantes Vorgehen
-1. `TabProperties` (lasercut/tabproperties.py) um ein neues Property `nut_slot_type` erweitern
-   (z.B. Werte `"square_nut"` / `"washer"`), Default = `"square_nut"` (Rückwärtskompatibilität).
-2. Bei `nut_slot_type == "washer"` zusätzliche Dimensionen benötigt: Außendurchmesser der
-   Unterlegscheibe (`washer_diameter`) und ggf. `washer_thickness` (falls abweichend von
-   `nut_height`). Neue Properties dafür ergänzen.
-3. `panel/tab.py` (`TSlotWidget`): Dropdown/Auswahl für `nut_slot_type` ergänzen sowie die neuen
-   Washer-Felder nur anzeigen, wenn `washer` ausgewählt ist (falls das UI-Framework das unterstützt,
-   sonst immer anzeigen).
-4. `lasercut/join.py` (`screw_way_on_face`): Erzeugung der Mutter-Tasche abhängig von
-   `nut_slot_type` verzweigen:
-   - `square_nut`: bestehende Box-Logik (unverändert).
-   - `washer`: zylindrische Tasche mit Radius aus `washer_diameter`, Tiefe wie bisher
-     `corrected_height`, optional mit Dog-Bone-Logik (falls sinnvoll für runde Form) oder ohne.
-5. `lasercut/helper.py` (`get_screw_nut_spec`): ggf. Standard-Washer-Maße pro Schraubendurchmesser
-   ergänzen (ähnlich der bestehenden Nut-Tabelle), damit sinnvolle Defaults vorgeschlagen werden.
-6. Dokumentation `docs/interlocking.md` um die neue Option ergänzen.
+1. `lasercut/tabproperties.py`: neue Properties ergänzen (Rückwärtskompatibilität: nur gesetzt,
+   wenn noch nicht vorhanden, wie bei den bestehenden Properties):
+   - `nut_flat_flat` (float, frei editierbar) — Schlüsselweite der Mutter (ersetzt bisher die
+     ausschließlich intern aus `get_screw_nut_spec` berechnete Breite).
+   - `nut_height` (float, frei editierbar) — Höhe/Länge der Mutter-Tasche.
+   - `use_washer` (bool, Default `False`) — Unterlegscheiben-Tasche zusätzlich einfügen.
+   - `washer_diameter` (float, frei editierbar) — Außendurchmesser der Unterlegscheibe.
+   - `washer_thickness` (float, frei editierbar) — Dicke/Länge der Unterlegscheiben-Tasche.
+   - Als Vorschlagswert (Default beim Anlegen einer neuen Verbindung) gilt: falls bereits an
+     anderer Stelle im laufenden Programm ein Wert gesetzt wurde, diesen zuletzt verwendeten Wert
+     vorschlagen (klassenweiter "letzter Wert"-Cache); ansonsten Fallback auf die bestehende
+     `get_screw_nut_spec`-Tabelle (Mutter) bzw. einfache Standard-Washer-Maße (ISO 7089) für die
+     Unterlegscheibe.
+2. `lasercut/helper.py`:
+   - Neue Funktion `get_washer_spec(screw_diameter)` mit Standard-Außendurchmessern/-Dicken
+     (ISO 7089) als Vorschlagswert für neue Verbindungen.
+3. `lasercut/join.py` (`screw_way_on_face`):
+   - Mutter-Tasche verwendet künftig `tab.nut_flat_flat`/`tab.nut_height` statt der Werte aus
+     `screw_nut_spec` (Vierkant- oder Sechskantmutter ist dadurch einfach eine andere
+     Schlüsselweite/Höhe, keine eigene Typ-Unterscheidung im Code nötig).
+   - Wenn `tab.use_washer`: zusätzliche zylindrische Durchgangs-Tasche (Radius aus
+     `washer_diameter`, Länge aus `washer_thickness`, Höhe = `corrected_height` wie die anderen
+     Taschen) direkt angrenzend zwischen `screw_hole` und `nut_hole` einfügen und mit den
+     bestehenden Formen fusen (`Part.fuse`). Mutter- und Unterlegscheiben-Tasche sind gleichzeitig
+     kombinierbar (kein Ausschluss).
+4. `panel/tab.py` (`TSlotWidget`): UI-Felder für `nut_flat_flat`, `nut_height`, `use_washer`
+   (Checkbox), `washer_diameter` und `washer_thickness` (letztere zwei nur sichtbar wenn
+   `use_washer` aktiv, via bestehendem `parent_name`/`parent_value`-Mechanismus in
+   `panel/toolwidget.py`).
+5. Dokumentation `docs/interlocking.md` um die neuen Optionen ergänzen.
 
 ## Betroffene Dateien/Module
 - `lasercut/tabproperties.py`
@@ -32,15 +57,11 @@ eine Unterlegscheibe unter dem Schraubenkopf/der Mutter sitzt.
 - `panel/tab.py`
 - `docs/interlocking.md`
 
-## Offene Fragen/Annahmen (Nutzer nicht erreichbar, autonom entschieden)
-1. **Ersetzt vs. zusätzlich**: Die Unterlegscheiben-Tasche *ersetzt* die Mutter-Tasche komplett
-   (Auswahl ist eine Alternative: entweder Vierkantmutter ODER Unterlegscheibe), keine Kombination.
-2. **Standardmaße**: Es wird eine Default-Tabelle für Unterlegscheiben-Außendurchmesser/-Dicke je
-   Schraubendurchmesser angelegt (analog zur bestehenden `get_screw_nut_spec`-Tabelle in
-   `lasercut/helper.py`), die der Nutzer bei Bedarf überschreiben kann.
-3. **Keine Verdrehsicherung**: Die Unterlegscheiben-Tasche ist ein einfacher runder Ausschnitt ohne
-   Anti-Rotation (Dog-Bone-Option bleibt für diese Form deaktiviert/ignoriert, da bei runden Formen
-   nicht sinnvoll).
-4. **Geltungsbereich**: Die Auswahl `nut_slot_type` ist ein Property pro Schraubverbindung
-   (Tab/Face), analog zu den bestehenden Properties wie `screw_diameter`, nicht global fürs Projekt.
+## Entschiedene Punkte (vom Nutzer beantwortet)
+1. **Position der Unterlegscheibe**: immer direkt angrenzend zwischen Schrauben- und Mutter-Tasche.
+2. **Maße**: freie Felder für Mutter-Schlüsselweite/-Höhe und Washer-Breite/-Dicke, mit
+   vorbelegtem Vorschlagswert (aus Tabelle bzw. zuletzt genutzten Werten).
+3. **Kombination**: Mutter- und Unterlegscheiben-Tasche sind gleichzeitig nutzbar (kein Ausschluss).
+4. **Geltungsbereich**: Property pro einzelner Schraubverbindung (Tab/Face); bei neu angelegten
+   Verbindungen werden die zuletzt verwendeten Werte als Vorschlag vorbelegt.
 
