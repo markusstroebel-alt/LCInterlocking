@@ -73,6 +73,7 @@ class ParamWidget(object):
             widget_config.widget = QtGui.QCheckBox("", self.form)
             state = QtCore.Qt.Checked if self.get_property_value(widget_config.name) == True else QtCore.Qt.Unchecked
             widget_config.widget.setCheckState(state)
+            widget_config.widget.stateChanged.connect(self.listchangeIndex)
         elif widget_config.type == list:
             widget_config.widget = QtGui.QComboBox(self.form)
             widget_config.widget.addItems(widget_config.interval_value)

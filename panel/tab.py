@@ -74,7 +74,18 @@ class TSlotWidget(BaseTabWidget):
                                 WidgetValue(type=float, name="screw_length", show_name="Screw length",
                                             widget=None, interval_value=[5., 300.], step=1., decimals=2.),
                                 WidgetValue(type=float, name="screw_length_tol", show_name="Screw length tol.",
-                                            widget=None, interval_value=[0, 300.], step=1., decimals=2.)])
+                                            widget=None, interval_value=[0, 300.], step=1., decimals=2.),
+                                WidgetValue(type=float, name="nut_flat_flat", show_name="Nut flat to flat",
+                                            widget=None, interval_value=[1., 100.], step=0.5, decimals=2.),
+                                WidgetValue(type=float, name="nut_height", show_name="Nut height",
+                                            widget=None, interval_value=[1., 100.], step=0.5, decimals=2.),
+                                WidgetValue(type=bool, name="use_washer", show_name="Use washer", widget=None),
+                                WidgetValue(type=float, name="washer_diameter", show_name="Washer diameter",
+                                            widget=None, interval_value=[1., 100.], step=0.5, decimals=2.,
+                                            parent_name="use_washer", parent_value=[True]),
+                                WidgetValue(type=float, name="washer_thickness", show_name="Washer thickness",
+                                            widget=None, interval_value=[0.1, 20.], step=0.1, decimals=2.,
+                                            parent_name="use_washer", parent_value=[True])])
 
 
 class TabContinuousWidget(BaseTabWidget):
