@@ -29,9 +29,11 @@
 ## Entscheidungen/Notizen
 - Kein `nut_type`-Enum (Hex/Square) nötig: `nut_flat_flat`/`nut_height` sind einfach frei
   editierbare Felder, die bisherige Box-Geometrie ist für jede Mutterform generisch genug.
-- Washer-Tasche ist ein einfacher zylindrischer Durchgangsschnitt (kein Anti-Rotation), direkt
-  zwischen Schrauben- und Mutter-Tasche eingefügt (`x_pos` der Mutter wird um `washer_thickness`
-  verschoben, wenn `use_washer` aktiv ist).
+- Washer-Tasche ist ein einfacher zylindrischer Durchgangsschnitt (kein Anti-Rotation), **flach/
+  deckungsgleich mit der Mutter-Tasche** (gleiche X-Position, zentriert im Mutter-Bereich) —
+  Korrektur nach Nutzer-Feedback ("Washer liegt flach unter der Mutter, nicht als eigenes Segment").
+  `washer_thickness` wird aktuell in der Geometrie nicht verwendet (nur Vorschlagswert/Property);
+  ggf. später relevant für Teiltiefen-Fräsen.
 - Rückwärtskompatibilität: bestehende Projekte ohne die neuen Properties bekommen beim Laden
   automatisch die aus `get_screw_nut_spec`/`get_washer_spec` abgeleiteten Default-Werte
   (`hasattr`-Check wie bei allen anderen Properties in `TabProperties`).

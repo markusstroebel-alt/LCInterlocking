@@ -40,10 +40,10 @@ mit den bestehenden Formen (`Part.fuse`) vereinigt wird, analog zur bestehenden
      `screw_nut_spec` (Vierkant- oder Sechskantmutter ist dadurch einfach eine andere
      Schlüsselweite/Höhe, keine eigene Typ-Unterscheidung im Code nötig).
    - Wenn `tab.use_washer`: zusätzliche zylindrische Durchgangs-Tasche (Radius aus
-     `washer_diameter`, Länge aus `washer_thickness`, Höhe = `corrected_height` wie die anderen
-     Taschen) direkt angrenzend zwischen `screw_hole` und `nut_hole` einfügen und mit den
-     bestehenden Formen fusen (`Part.fuse`). Mutter- und Unterlegscheiben-Tasche sind gleichzeitig
-     kombinierbar (kein Ausschluss).
+     `washer_diameter`) **deckungsgleich/flach mit der Mutter-Tasche** (gleiche X-Position, mittig
+     im Bereich der Mutter-Tasche) einfügen und mit den bestehenden Formen fusen (`Part.fuse`) —
+     die Unterlegscheibe liegt unter der Mutter, kein separates vorgelagertes Segment.
+     Mutter- und Unterlegscheiben-Tasche sind gleichzeitig kombinierbar (kein Ausschluss).
 4. `panel/tab.py` (`TSlotWidget`): UI-Felder für `nut_flat_flat`, `nut_height`, `use_washer`
    (Checkbox), `washer_diameter` und `washer_thickness` (letztere zwei nur sichtbar wenn
    `use_washer` aktiv, via bestehendem `parent_name`/`parent_value`-Mechanismus in
