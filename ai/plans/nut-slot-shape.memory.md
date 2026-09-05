@@ -1,22 +1,37 @@
 # Memory: nut-slot-shape
 
 ## Status
-- Plan erstellt: [nut-slot-shape.md](./nut-slot-shape.md)
-- Nutzer war bei Rückfragen nicht erreichbar → offene Fragen im Plan autonom entschieden
-  (Unterlegscheibe ersetzt Mutter komplett, Default-Maßtabelle, kein Anti-Rotation, Property pro Tab).
-- Feature-Branch `feature/nut-slot-shape` angelegt.
+- Plan mehrfach überarbeitet (erste Annahme "Teiltiefen-Fräsen" war falsch, korrigiert auf reinen
+  Durchgangsschnitt). Finaler Plan mit Nutzer-Antworten abgestimmt und freigegeben.
+- Implementierung abgeschlossen auf Branch `feature/nut-slot-shape`, feingranular committed:
+  1. Workflow-Instructions (.github/copilot-instructions.md) — auf develop.
+  2. Plan/Memory/README-Grundgerüst.
+  3. Plan finalisiert mit Nutzer-Entscheidungen.
+  4. `helper.get_washer_spec` (ISO 7089 Vorschlagswerte).
+  5. `TabProperties`: `nut_flat_flat`, `nut_height`, `use_washer`, `washer_diameter`,
+     `washer_thickness` + "letzte Werte"-Cache (`_last_nut_washer_values`).
+  6. `join.screw_way_on_face`: nutzt jetzt `tab.nut_flat_flat`/`tab.nut_height`, optionale
+     Washer-Tasche (Zylinder) direkt zwischen Schrauben- und Mutter-Tasche.
+  7. `panel/tab.py` `TSlotWidget`: neue UI-Felder; `panel/toolwidget.py`: Checkbox löst jetzt auch
+     `listchangeIndex` aus (nötig, damit Washer-Felder beim Toggle sofort ein-/ausgeblendet werden).
+  8. `docs/interlocking.md` aktualisiert.
 
 ## Todo
-- [ ] `lasercut/tabproperties.py`: `nut_slot_type` Property ('square_nut' | 'washer') + Defaults
-- [ ] `lasercut/helper.py`: Default-Washer-Maße Tabelle (analog `get_screw_nut_spec`)
-- [ ] `lasercut/join.py`: `screw_way_on_face` verzweigen für runde Washer-Tasche
-- [ ] `panel/tab.py`: `TSlotWidget` um Auswahlfeld für `nut_slot_type` erweitern
-- [ ] `docs/interlocking.md`: neue Option dokumentieren
-- [ ] Manuell in FreeCAD testen (test/simple_box.FCStd o.ä.)
-- [ ] Feature-README finalisieren
+- [x] `lasercut/tabproperties.py`
+- [x] `lasercut/helper.py`
+- [x] `lasercut/join.py`
+- [x] `panel/tab.py` + `panel/toolwidget.py`
+- [x] `docs/interlocking.md`
+- [ ] Manuell in FreeCAD testen (test/simple_box.FCStd o.ä.) — **noch nicht gemacht, FreeCAD in
+  dieser Umgebung nicht verfügbar**. Bitte vor Merge in FreeCAD selbst verifizieren.
+- [x] Feature-README finalisiert
 
 ## Entscheidungen/Notizen
-- Property-Name: `nut_slot_type`, Werte als Strings `"square_nut"` (Default, Rückwärtskompatibilität)
-  und `"washer"`.
-- Washer-Tasche: Zylinder mit Radius `washer_diameter/2`, Tiefe = Face-Dicke, ohne Dog-Bone.
-- Bestehende Box-Logik für `square_nut` bleibt unverändert (keine Regression für bestehende Projekte).
+- Kein `nut_type`-Enum (Hex/Square) nötig: `nut_flat_flat`/`nut_height` sind einfach frei
+  editierbare Felder, die bisherige Box-Geometrie ist für jede Mutterform generisch genug.
+- Washer-Tasche ist ein einfacher zylindrischer Durchgangsschnitt (kein Anti-Rotation), direkt
+  zwischen Schrauben- und Mutter-Tasche eingefügt (`x_pos` der Mutter wird um `washer_thickness`
+  verschoben, wenn `use_washer` aktiv ist).
+- Rückwärtskompatibilität: bestehende Projekte ohne die neuen Properties bekommen beim Laden
+  automatisch die aus `get_screw_nut_spec`/`get_washer_spec` abgeleiteten Default-Werte
+  (`hasattr`-Check wie bei allen anderen Properties in `TabProperties`).
