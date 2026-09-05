@@ -118,6 +118,29 @@ def get_screw_nut_spec(metric_diameter, metric_length):
     raise ValueError("Unknown screw diameter")
 
 
+# http://www.fairburyfastener.com/xdims_metric_washers.htm (ISO 7089 flat washers)
+def get_washer_spec(metric_diameter):
+    if metric_diameter == 1.6:
+        return ObjectProperties(washer_diameter=4., washer_thickness=0.3)
+    elif metric_diameter == 2:
+        return ObjectProperties(washer_diameter=5., washer_thickness=0.3)
+    elif metric_diameter == 2.5:
+        return ObjectProperties(washer_diameter=6., washer_thickness=0.5)
+    elif metric_diameter == 3:
+        return ObjectProperties(washer_diameter=7., washer_thickness=0.5)
+    elif metric_diameter == 4:
+        return ObjectProperties(washer_diameter=9., washer_thickness=0.8)
+    elif metric_diameter == 5:
+        return ObjectProperties(washer_diameter=10., washer_thickness=1.0)
+    elif metric_diameter == 6:
+        return ObjectProperties(washer_diameter=12., washer_thickness=1.6)
+    elif metric_diameter == 8:
+        return ObjectProperties(washer_diameter=16., washer_thickness=1.6)
+    elif metric_diameter == 10:
+        return ObjectProperties(washer_diameter=20., washer_thickness=2.0)
+    raise ValueError("Unknown screw diameter")
+
+
 def transform_part(tab_to_add, face):
     y_invert = False
     if hasattr(face, 'y_invert'):
