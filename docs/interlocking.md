@@ -49,5 +49,11 @@ Additional Information
   * Interlocking properties can be edited again clicking on "MultiJoin" group item.
   * In editing mode, parts and faces can can be visualized by selecting the in the treview of the tools. Then they can be displayed/hidden by tapping in the key "space".
   * Preview button allow to create a new document with interlocking parts without exiting tool. It's convenient to adjust connection parameters.
-  * "Add same faces" works as "Add same parts", faces while share the same connection properties. 
-  
+  * "Add same faces" works as "Add same parts", faces while share the same connection properties.
+  * For "screw" connections, the nut pocket shape is defined by "Nut flat to flat" and "Nut height",
+    both freely editable (suggested values are pre-filled from the screw dimensions, or from the
+    last values used in the current session).
+  * Optionally, check "Use washer" to add a round through-cut pocket for a washer, directly
+    adjacent between the screw hole and the nut pocket. Its diameter and thickness ("Washer
+    diameter"/"Washer thickness") are also freely editable, with a suggested default.
+
