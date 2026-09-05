@@ -86,16 +86,8 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
-    # Washer hole, directly adjacent between the screw hole and the nut hole
-    nut_x_pos = -vert_corrected_length + tab.nut_height + screw_nut_spec.screw_length_tol
-    if tab.use_washer:
-        washer_radius = (tab.washer_diameter - material_face.laser_beam_diameter) / 2.0
-        washer_hole = Part.makeCylinder(washer_radius, corrected_height,
-                                        FreeCAD.Vector(nut_x_pos, pos_y, -corrected_height / 2.0))
-        hole = hole.fuse(washer_hole)
-        nut_x_pos += tab.washer_thickness
-
     # Nut hole
+    nut_x_pos = -vert_corrected_length + tab.nut_height + screw_nut_spec.screw_length_tol
     corrected_length = tab.nut_height - material_face.laser_beam_diameter + 0.1
     corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter + 0.1
     nut_hole = Part.makeBox(corrected_length, corrected_width, corrected_height,
@@ -105,6 +97,14 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     if dog_bone:
         nut_hole = helper.make_dog_bone_on_limits_on_xy(nut_hole, corrected_height)
     hole = hole.fuse(nut_hole)
+
+    # Washer hole: round cutout flush with the nut hole (washer sits under the nut, same location)
+    if tab.use_washer:
+        washer_radius = (tab.washer_diameter - material_face.laser_beam_diameter) / 2.0
+        washer_center_x = nut_x_pos + corrected_length / 2.0
+        washer_hole = Part.makeCylinder(washer_radius, corrected_height,
+                                        FreeCAD.Vector(washer_center_x, pos_y, -corrected_height / 2.0))
+        hole = hole.fuse(washer_hole)
     return hole
 
 
