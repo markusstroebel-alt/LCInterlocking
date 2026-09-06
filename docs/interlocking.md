@@ -60,4 +60,8 @@ Additional Information
     all matching fields at once; "Save as..." stores the current values under a name, "Delete"
     removes the selected preset. Presets are stored globally (available in every project) and are
     filtered by connection type.
+  * The default values for "Thickness tolerance", "Laser beam diameter" and "Slot width tolerance"
+    can be configured under Edit → Preferences → LCInterlocking. New materials use these values
+    automatically; existing materials can be updated with the "Reset tolerances to defaults"
+    button in the material properties.
 
