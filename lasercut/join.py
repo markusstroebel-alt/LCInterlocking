@@ -225,10 +225,9 @@ def make_continuous_tab_joins(tab, tab_part, other_parts):
     return
 
 
-def make_tslot_tab_join(tab, tab_part, other_parts):
-    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
-    screw_nut_spec = helper.get_screw_nut_spec(tab.screw_diameter, tab.screw_length)
-    screw_nut_spec.screw_length_tol = tab.screw_length_tol
+def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+    # Shared by all screw-like tab types: creates the tabs (tenons) and their matching
+    # holes, yielding (y, part_interactor) for each successfully matched slot position.
     slots_pos = get_slot_positions(tab)
     for i, y in enumerate(slots_pos):
         for part_interactor in other_parts:
@@ -264,14 +263,30 @@ def make_tslot_tab_join(tab, tab_part, other_parts):
                 part_interactor.toRemove.append(helper.transform_part(left_hole, tab))
                 part_interactor.toRemove.append(helper.transform_part(right_hole, tab))
 
-                screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
-                                                        screw_nut_spec, tab, y, tab.dog_bone)
-                screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_nut_spec, y)
-
-                tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
-                part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
-
+                yield y, part_interactor
                 break
+
+
+def make_tslot_tab_join(tab, tab_part, other_parts):
+    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
+    screw_nut_spec = helper.get_screw_nut_spec(tab.screw_diameter, tab.screw_length)
+    screw_nut_spec.screw_length_tol = tab.screw_length_tol
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+        screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
+                                                screw_nut_spec, tab, y, tab.dog_bone)
+        screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_nut_spec, y)
+
+        tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
+        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
+    return
+
+
+def make_wood_screw_tab_join(tab, tab_part, other_parts):
+    # Only the tabs and a round hole for the screw shaft, no pocket for a nut/washer.
+    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+        screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, tab, y)
+        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
     return
 
 
@@ -307,6 +322,8 @@ def make_tabs_joins(parts, tabs):
             make_continuous_tab_joins(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_FLEX:
             flextab.make_flex_tab_join(tab, tab_part, other_parts)
+        elif tab.tab_type == TabProperties.TYPE_WOOD_SCREW:
+            make_wood_screw_tab_join(tab, tab_part, other_parts)
         else:
             raise ValueError("Unknown tab type")
     return parts_element
