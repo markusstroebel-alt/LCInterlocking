@@ -88,8 +88,8 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
 
     # Nut hole
     nut_x_pos = -vert_corrected_length + tab.nut_height + screw_nut_spec.screw_length_tol
-    corrected_length = tab.nut_height - material_face.laser_beam_diameter + 0.1
-    corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter + 0.1
+    corrected_length = tab.nut_height - material_face.laser_beam_diameter
+    corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter
     nut_hole = Part.makeBox(corrected_length, corrected_width, corrected_height,
                             FreeCAD.Vector(0,
                                            -corrected_width / 2.0, -corrected_height / 2.0))
@@ -102,8 +102,8 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     # positioned right after (below) the nut hole
     if tab.use_washer:
         washer_x_pos = nut_x_pos + corrected_length
-        washer_length = tab.washer_thickness - material_face.laser_beam_diameter + 0.1
-        washer_width = tab.washer_diameter - material_face.laser_beam_diameter + 0.1
+        washer_length = tab.washer_thickness - material_face.laser_beam_diameter
+        washer_width = tab.washer_diameter - material_face.laser_beam_diameter
         washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
                                    FreeCAD.Vector(0,
                                                   -washer_width / 2.0, -corrected_height / 2.0))
