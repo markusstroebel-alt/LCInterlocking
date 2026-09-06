@@ -6,11 +6,11 @@
   wiederum auf `develop` basiert).
 
 ## Todo
-- [ ] `lasercut/presets.py` (neu): Laden/Speichern/Verwalten der Presets als globale JSON-Datei
-- [ ] `panel/toolwidget.py` (`ParamWidget`): generische Preset-UI (Dropdown, Save as, Delete)
-- [ ] `docs/interlocking.md`: Kurzbeschreibung ergänzen
+- [x] `lasercut/presets.py` (neu): Laden/Speichern/Verwalten der Presets als globale JSON-Datei
+- [x] `panel/toolwidget.py` (`ParamWidget`): generische Preset-UI (Dropdown, Save as, Delete)
+- [x] `docs/interlocking.md`: Kurzbeschreibung ergänzt (inkl. Korrektur veralteter Washer-Doku)
 - [ ] Manuell in FreeCAD testen (FreeCAD hier nicht verfügbar für automatisierte Tests)
-- [ ] Feature-README finalisieren
+- [x] Feature-README finalisiert
 
 ## Entscheidungen/Notizen
 - Datenformat: `{"<tab_type>": [{"name": "...", "values": {"<property>": <value>, ...}}, ...]}`
