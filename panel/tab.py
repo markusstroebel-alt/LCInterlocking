@@ -62,6 +62,17 @@ class TabWidget(BaseTabWidget):
         BaseTabWidget.__init__(self, tab_properties)
 
 
+class WoodScrewWidget(BaseTabWidget):
+
+    def __init__(self, tab_properties):
+        BaseTabWidget.__init__(self, tab_properties)
+
+        self.widget_list.extend([WidgetValue(type=float, name="half_tab_ratio", show_name="Half tab ratio",
+                                             widget=None, interval_value=[0.1, 5.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="screw_diameter", show_name="Screw diameter",
+                                            widget=None, interval_value=[1., 30.], step=1., decimals=2.)])
+
+
 class TSlotWidget(BaseTabWidget):
 
     def __init__(self, tab_properties):
@@ -163,6 +174,8 @@ class TabsList(object):
             widget = TSlotWidget(tab_properties)
         elif tab_type == TabProperties.TYPE_CONTINUOUS:
             widget = TabContinuousWidget(tab_properties)
+        elif tab_type == TabProperties.TYPE_WOOD_SCREW:
+            widget = WoodScrewWidget(tab_properties)
         #elif tab_type == TabProperties.TYPE_FLEX:
         #    widget = TabFlexWidget(tab_properties)
         else:
