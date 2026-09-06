@@ -5,7 +5,7 @@ This is the main tool of the LCInterlocking module. It allows to define connecti
 
 Parts can come from the Freecad Part/Part Design workshops or from the box generator tool of this module for example. To create a connection, the faces must stick.
 
-There are three type of connections : tab, continuous tab and screw. <br>
+There are four type of connections : tab, continuous tab, screw and wood screw. <br>
 ![Illustration](imgs/interlocking/tab.png) <br>
 ![Illustration](imgs/interlocking/continuous.png) <br>
 ![Illustration](imgs/interlocking/screw.png)<br>
@@ -64,4 +64,7 @@ Additional Information
     can be configured under Edit → Preferences → LCInterlocking. New materials use these values
     automatically; existing materials can be updated with the "Reset tolerances to defaults"
     button in the material properties.
+  * "WoodScrew" is a lighter alternative to "Screw": it only creates the tabs and a round hole for
+    the screw shaft in the other part, without the pocket for a nut/washer — useful when the screw
+    threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
 
