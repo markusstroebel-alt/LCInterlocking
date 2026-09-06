@@ -11,10 +11,10 @@ Folgendes benötigt:
 
 Die Ausfräsung für Schraubenschaft + Mutter + Unterlegscheibe (`screw_way_on_face`) entfällt
 komplett. Dafür soll ein neuer, eigenständiger Auswahlpunkt entstehen (wie "Tab", "Screw",
-"Continuous"), z.B. **"Wood screw"**.
+"Continuous"), z.B. **"WoodScrew"**.
 
 ## Geplantes Vorgehen
-1. `lasercut/tabproperties.py`: neue Konstante `TYPE_WOOD_SCREW = 'Wood screw'`.
+1. `lasercut/tabproperties.py`: neue Konstante `TYPE_WOOD_SCREW = 'WoodScrew'`.
 2. `lasercut/join.py`:
    - Gemeinsame Zapfen-/Lochlogik aus `make_tslot_tab_join` in eine Hilfsfunktion auslagern (Tabs
      erzeugen, `check_intersect`, `tab_join_create_hole_on_plane`), um Duplikation zu vermeiden.
@@ -38,14 +38,13 @@ komplett. Dafür soll ein neuer, eigenständiger Auswahlpunkt entstehen (wie "Ta
 - `panel/treepanel.py`
 - `docs/interlocking.md`
 
-## Offene Fragen (bitte kurz bestätigen)
-1. **Name in der Dropdown-Liste**: Passt "Wood screw" als Anzeigename, oder bevorzugst du eine
-   andere Bezeichnung (z.B. "Holzschraube", "WoodScrew" ohne Leerzeichen)?
-2. **Position des Lochs**: Das runde Loch (`screw_way_on_plane`) kommt wie bisher beim
-   `part_interactor` (Gegenstück) an derselben Position wie beim bestehenden "Screw"-Typ — richtig
-   so?
-3. **half_tab_ratio/screw_diameter**: Reichen diese zwei Felder, oder werden weitere bestehende
-   Screw-Felder (z.B. `screw_length_tol`, `dog_bone`) ebenfalls benötigt?
+## Entschiedene Punkte (vom Nutzer beantwortet)
+1. **Name**: `TYPE_WOOD_SCREW = 'WoodScrew'` (ohne Leerzeichen, passend zu `'Tab'`, `'Screw'`,
+   `'Continuous'`).
+2. **Position des Lochs**: `screw_way_on_plane` (rundes Loch) kommt wie beim bestehenden
+   "Screw"-Typ beim `part_interactor`, gleiche Position/Logik.
+3. **Felder**: `WoodScrewWidget` basiert auf den `BaseTabWidget`-Feldern (wie `TabWidget`), plus
+   `half_tab_ratio` und `screw_diameter` (nötig für die Lochplatzierung/-berechnung).
 
 ## Nächster Schritt
-Nach Bestätigung Feature-Branch `feature/wood-screw-connection` anlegen und feingranular umsetzen.
+Feature-Branch `feature/wood-screw-connection` anlegen und feingranular umsetzen.
