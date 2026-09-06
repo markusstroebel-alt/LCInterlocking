@@ -53,7 +53,11 @@ Additional Information
   * For "screw" connections, the nut pocket shape is defined by "Nut flat to flat" and "Nut height",
     both freely editable (suggested values are pre-filled from the screw dimensions, or from the
     last values used in the current session).
-  * Optionally, check "Use washer" to add a round through-cut pocket for a washer, directly
-    adjacent between the screw hole and the nut pocket. Its diameter and thickness ("Washer
+  * Optionally, check "Use washer" to add a rectangular through-cut pocket for a washer, handled
+    just like the nut pocket and positioned directly after it. Its width and length ("Washer
     diameter"/"Washer thickness") are also freely editable, with a suggested default.
+  * A "Preset" dropdown is available above the connection properties. Selecting a preset fills in
+    all matching fields at once; "Save as..." stores the current values under a name, "Delete"
+    removes the selected preset. Presets are stored globally (available in every project) and are
+    filtered by connection type.
 
