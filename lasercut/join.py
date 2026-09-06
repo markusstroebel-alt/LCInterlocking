@@ -64,7 +64,7 @@ def get_slot_positions(tab_properties):
 
 def screw_way_on_plane(material_plane, screw_nut_spec, pos_y):
     # horizontal hole
-    radius = (screw_nut_spec.screw_diameter * 1.2 - material_plane.laser_beam_diameter) / 2.0
+    radius = (screw_nut_spec.screw_diameter - material_plane.laser_beam_diameter) / 2.0
     cylinder = Part.makeCylinder(radius, material_plane.thickness, FreeCAD.Vector(0, 0, -material_plane.thickness / 2.))
     cylinder.rotate(FreeCAD.Vector(0, 0, 0), FreeCAD.Vector(0, 1, 0), 90)
     cylinder.translate(FreeCAD.Vector(material_plane.thickness / 2.0, pos_y, 0.))
@@ -75,7 +75,7 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     # horizontal hole
     vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
                             + material_plane.thickness_tolerance + screw_nut_spec.screw_length_tol
-    corrected_width = screw_nut_spec.screw_diameter * 1.2 - material_face.laser_beam_diameter
+    corrected_width = screw_nut_spec.screw_diameter - material_face.laser_beam_diameter
     corrected_height = material_face.thickness  # + materialFace.tolerance
     screw_hole = Part.makeBox(vert_corrected_length, corrected_width, corrected_height,
                               FreeCAD.Vector(0.,
