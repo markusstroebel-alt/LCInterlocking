@@ -14,22 +14,44 @@ Dropdown im `TSlotWidget` auswählen kann, um alle zugehörigen Werte auf einen 
 - ggf. `panel/toolwidget.py` — falls neue generische UI-Bausteine nötig sind.
 - `docs/interlocking.md` — Dokumentation der neuen Funktion.
 
-## Offene Fragen (bitte vor Umsetzung beantworten)
-1. **Umfang eines Presets**: Sollen Presets nur die Schrauben-/Mutter-/Washer-Maße enthalten
-   (`screw_diameter`, `screw_length`, `screw_length_tol`, `nut_flat_flat`, `nut_height`,
-   `use_washer`, `washer_diameter`, `washer_thickness`), oder auch andere Tab-Eigenschaften wie
-   `tabs_number`, `tabs_width`, `dog_bone` etc.?
-2. **Speicherort**: Sollen Presets projektübergreifend gelten (z.B. als JSON-Datei im
-   FreeCAD-Benutzerverzeichnis, ähnlich Materialien/Makros), oder nur innerhalb des aktuellen
-   FreeCAD-Dokuments gespeichert werden (wie die bestehende `PropertiesList`-Serialisierung)?
-3. **Verwaltung**: Reicht ein reines "Preset auswählen und anwenden"-Dropdown, oder soll die UI
-   auch "aktuelle Werte als neues Preset speichern" und "Preset löschen/umbenennen" anbieten?
-4. **Mitgelieferte Presets**: Sollen ein paar Standard-Presets (z.B. für gängige M3/M4/M5-Schrauben
-   mit Sechskantmutter) von Anfang an mitgeliefert werden, oder startet die Liste leer und der
-   Nutzer legt alles selbst an?
-5. **Geltungsbereich der Auswahl**: Gilt das Dropdown nur für den Screw/T-Slot-Verbindungstyp
-   (`TSlotWidget`), oder soll ein generisches Preset-System für alle Tab-Typen entstehen?
+## Geplantes Vorgehen (konkretisiert nach Antworten)
+1. Neues Modul `lasercut/presets.py`:
+   - `get_presets_file_path()` — JSON-Datei im FreeCAD-Benutzerverzeichnis
+     (`FreeCAD.getUserAppDataDir() + "LCInterlocking_presets.json"`), projektübergreifend.
+   - `load_presets()` / `save_presets(presets)` — Laden/Schreiben der kompletten Datei.
+   - Datenformat: `{"<tab_type>": [{"name": "...", "values": {"<property>": <value>, ...}}, ...]}`,
+     gruppiert nach `tab_type` (z.B. `TabProperties.TYPE_T_SLOT`), damit nur zum jeweiligen
+     Verbindungstyp passende Presets angezeigt werden.
+   - `add_or_update_preset(tab_type, name, values)`, `delete_preset(tab_type, name)`,
+     `get_presets_for_type(tab_type)`.
+2. `panel/toolwidget.py` (`ParamWidget`, generisch für alle Tab-Typen — einfacher als
+   typ-spezifische Lösung und automatisch für `TabWidget`, `TSlotWidget`,
+   `TabContinuousWidget`, `TabFlexWidget` nutzbar):
+   - Neue Preset-Zeile oberhalb der bestehenden Felder: Dropdown (Presets für den aktuellen
+     `tab_type`), Button "Save as..." (Name abfragen, aktuelle Feldwerte als neues Preset
+     speichern/überschreiben), Button "Delete" (aktuell gewähltes Preset löschen).
+   - Beim Auswählen eines Presets: alle in `values` enthaltenen Properties auf die entsprechenden
+     Widgets übertragen (nur wenn der Widget-Name im aktuellen `widget_list` existiert — andere
+     Tab-Typen mit anderen Feldern werden dadurch automatisch ignoriert) und Sichtbarkeit
+     aktualisieren (`listchangeIndex`). Werte bleiben danach normal editierbar (kein Lock).
+   - Presets speichern *alle* aktuell sichtbaren Felder des Widgets (nicht nur
+     Schrauben-/Mutter-/Washer-Werte), gemäß Antwort zu Frage 1.
+3. `docs/interlocking.md` um Kurzbeschreibung der Preset-Funktion ergänzen.
+
+## Betroffene Dateien/Module
+- `lasercut/presets.py` (neu)
+- `panel/toolwidget.py`
+- `docs/interlocking.md`
+
+## Entschiedene Punkte (vom Nutzer beantwortet)
+1. **Umfang**: Presets enthalten alle Felder des jeweiligen Widgets, bleiben nach Auswahl weiter
+   editierbar.
+2. **Speicherort**: global (JSON-Datei im FreeCAD-Benutzerverzeichnis, projektübergreifend).
+3. **Verwaltung**: volle UI-Verwaltung (auswählen/anwenden, speichern, löschen).
+4. **Mitgelieferte Presets**: Liste startet leer, Nutzer legt eigene Presets an.
+5. **Geltungsbereich**: generische Lösung auf Ebene von `ParamWidget`, funktioniert für alle
+   Tab-Typen gleichermaßen (einfacher als typ-spezifische Implementierung).
 
 ## Nächster Schritt
-Sobald die offenen Fragen beantwortet sind, wird der Plan konkretisiert (Datenformat, UI-Ablauf,
-betroffene Dateien) und erneut zur Freigabe vorgelegt, bevor Branch/Umsetzung beginnt.
+Freigabe durch Nutzer abwarten, dann Feature-Branch `feature/connection-presets` anlegen und
+feingranular umsetzen.
