@@ -7,14 +7,14 @@
   -> `develop`).
 
 ## Todo
-- [ ] `lasercut/tabproperties.py`: `TYPE_WOOD_SCREW = 'WoodScrew'`
-- [ ] `lasercut/join.py`: gemeinsame Zapfenlogik extrahieren, `make_wood_screw_tab_join` +
+- [x] `lasercut/tabproperties.py`: `TYPE_WOOD_SCREW = 'WoodScrew'`
+- [x] `lasercut/join.py`: gemeinsame Zapfenlogik extrahiert, `make_wood_screw_tab_join` +
   Dispatch-Eintrag
-- [ ] `panel/tab.py`: `WoodScrewWidget` + Verdrahtung in `createWidgetFromTabProperties`
-- [ ] `panel/treepanel.py`: Dropdown-Liste erweitern
-- [ ] `docs/interlocking.md`: neuen Typ dokumentieren
+- [x] `panel/tab.py`: `WoodScrewWidget` + Verdrahtung in `createWidgetFromTabProperties`
+- [x] `panel/treepanel.py`: Dropdown-Liste erweitert
+- [x] `docs/interlocking.md`: neuen Typ dokumentiert
 - [ ] Manuell in FreeCAD testen (FreeCAD hier nicht verfügbar)
-- [ ] Feature-README finalisieren
+- [x] Feature-README finalisiert
 
 ## Entscheidungen/Notizen
 - `TYPE_WOOD_SCREW = 'WoodScrew'` (kein Leerzeichen, passend zu 'Tab'/'Screw'/'Continuous').
