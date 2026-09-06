@@ -6,14 +6,14 @@
   welches auf `feature/nut-slot-shape`, welches auf `develop` basiert).
 
 ## Todo
-- [ ] `lasercut/preferences.py` (neu): ParamGet-Zugriff für die drei Default-Werte
-- [ ] `panel/preferencespage.py` (neu): Preferences-Seite (loadSettings/saveSettings)
-- [ ] `InitGui.py`: Preferences-Seite registrieren
-- [ ] `lasercut/material.py`: Defaults aus `lasercut.preferences` statt fester Formeln
-- [ ] `panel/partmat.py`: "Reset tolerances to defaults"-Button
-- [ ] `docs/interlocking.md`: Dokumentation ergänzen
+- [x] `lasercut/preferences.py` (neu): ParamGet-Zugriff für die drei Default-Werte
+- [x] `panel/preferencespage.py` (neu): Preferences-Seite (loadSettings/saveSettings)
+- [x] `InitGui.py`: Preferences-Seite registriert
+- [x] `lasercut/material.py`: Defaults aus `lasercut.preferences` statt fester Formeln
+- [x] `panel/partmat.py`: "Reset tolerances to defaults"-Button
+- [x] `docs/interlocking.md`: Dokumentation ergänzt
 - [ ] Manuell in FreeCAD testen (FreeCAD hier nicht verfügbar)
-- [ ] Feature-README finalisieren
+- [x] Feature-README finalisiert
 
 ## Entscheidungen/Notizen
 - Preferences-Gruppe: `User parameter:BaseApp/Preferences/Mod/LCInterlocking`
