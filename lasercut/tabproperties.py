@@ -44,7 +44,7 @@ class TabProperties(helper.ObjectProperties):
                 'through_tabs', 'tab_length', 'tab_length_tolerance',
                 'nut_flat_flat', 'nut_height', 'nut_slot_overhang', 'thread_clearance',
                 'use_washer', 'washer_diameter', 'washer_thickness',
-                'nut_outer_diameter', 'nut_depth')
+                'nut_outer_diameter', 'nut_depth', 'head_clearance')
 
     __count = 0
 
@@ -108,6 +108,8 @@ class TabProperties(helper.ObjectProperties):
             self.nut_outer_diameter = preferences.get_default_nut_outer_diameter()
         if not hasattr(self, 'nut_depth'):
             self.nut_depth = preferences.get_default_nut_depth()
+        if not hasattr(self, 'head_clearance'):
+            self.head_clearance = 0.0
         if not hasattr(self, 'through_tabs'):
             self.through_tabs = True
         if not hasattr(self, 'tab_length'):

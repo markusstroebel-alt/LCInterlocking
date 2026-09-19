@@ -71,7 +71,8 @@ Additional Information
     outer diameter and nut depth. Enter the screw length; the screw channel is derived by subtracting
     washer thickness, nut depth and thread clearance. The screw-head side uses the same pocket
     geometry as "Screw"; the opposite plate receives the through-hole plus the round blind insert
-    hole.
+    hole. "Head clearance" enlarges the head-side pocket; it does not shift the complete pocket
+    stack or change the lower thread clearance.
   * Screw connections expose separate values for "Screw length", "Nut height", "Nut slot overhang"
     and "Thread clearance". The last value adds free space behind the nut for the protruding thread.
     Defaults for these and the other Screw dimensions can be configured in Edit -> Preferences ->

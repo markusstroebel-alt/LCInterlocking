@@ -17,6 +17,7 @@ The thread clearance is separate blind-hole reserve and is not part of the screw
 - Screw length
 - Nut outer diameter
 - Nut depth
+- Head clearance for the screw-head pocket
 - Thread clearance
 - Optional Use washer mit Washer diameter/thickness
 

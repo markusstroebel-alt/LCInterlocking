@@ -93,7 +93,7 @@ class ScrewInNutWidget(BaseTabWidget):
                                             widget=None, interval_value=[1., 300.], step=0.1, decimals=2),
                                 WidgetValue(type=float, name="nut_height", show_name="Head pocket length",
                                             widget=None, interval_value=[0.1, 300.], step=0.1, decimals=2),
-                                WidgetValue(type=float, name="nut_slot_overhang", show_name="Head pocket overhang",
+                                WidgetValue(type=float, name="head_clearance", show_name="Head clearance",
                                             widget=None, interval_value=[0., 300.], step=0.1, decimals=2),
                                 WidgetValue(type=float, name="nut_outer_diameter", show_name="Nut outer diameter",
                                             widget=None, interval_value=[1., 300.], step=0.1, decimals=2),
