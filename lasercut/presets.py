@@ -73,3 +73,27 @@ def delete_preset(tab_type, name):
     type_presets = presets.get(tab_type, [])
     presets[tab_type] = [preset for preset in type_presets if preset["name"] != name]
     save_presets(presets)
+
+
+def get_preset_rows():
+    rows = []
+    for tab_type, type_presets in load_presets().items():
+        for preset in type_presets:
+            rows.append({"tab_type": tab_type,
+                         "name": preset.get("name", ""),
+                         "values": dict(preset.get("values", {}))})
+    return rows
+
+
+def save_preset_rows(rows):
+    grouped = {}
+    for row in rows:
+        tab_type = str(row.get("tab_type", "")).strip()
+        name = str(row.get("name", "")).strip()
+        if not tab_type or not name:
+            raise ValueError("Preset type and name are required")
+        grouped.setdefault(tab_type, [])
+        if any(item["name"] == name for item in grouped[tab_type]):
+            raise ValueError("Duplicate preset name: %s" % name)
+        grouped[tab_type].append({"name": name, "values": dict(row.get("values", {}))})
+    save_presets(grouped)
