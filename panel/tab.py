@@ -110,6 +110,10 @@ class TabContinuousWidget(BaseTabWidget):
 
         self.widget_list = [WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
                             WidgetValue(type=float, name="thickness", show_name="Thickness", widget=None),
+                    WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
+                    WidgetValue(type=float, name="tab_length", show_name="Tab length", widget=None,
+                        interval_value=[0.01, 3000.], step=0.5, decimals=2,
+                        parent_name="through_tabs", parent_value=[False]),
                             WidgetValue(type=float, name="tabs_number", show_name="Number of elements",
                                             widget=None, interval_value=[2., 300.], step=1., decimals=0),
                             WidgetValue(type=bool, name="y_invert", show_name="Invert Y", widget=None),
@@ -122,7 +126,11 @@ class TabFlexWidget(BaseTabWidget):
     def __init__(self, tab_properties):
         BaseTabWidget.__init__(self, tab_properties)
 
-        self.widget_list = [WidgetValue(type=float, name="tabs_width", show_name="Width of tabs", widget=None,
+        self.widget_list = [WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
+                    WidgetValue(type=float, name="tab_length", show_name="Tab length", widget=None,
+                        interval_value=[0.01, 3000.], step=0.5, decimals=2,
+                        parent_name="through_tabs", parent_value=[False]),
+                    WidgetValue(type=float, name="tabs_width", show_name="Width of tabs", widget=None,
                                             interval_value=[1., 300.], step=1., decimals=2),
                             WidgetValue(type=bool, name="y_invert", show_name="Invert Y", widget=None),
                             WidgetValue(type=bool, name="dog_bone", show_name="Dog bone hole", widget=None)]
