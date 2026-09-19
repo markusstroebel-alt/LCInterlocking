@@ -160,7 +160,6 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
 def screw_in_nut_way_on_face(material_face, material_plane, tab, pos_y, dog_bone=False):
     washer_thickness = tab.washer_thickness if tab.use_washer else 0.0
     channel_length = tab.screw_length - washer_thickness - tab.nut_depth
-    channel_length -= material_face.laser_beam_diameter
     corrected_height = material_face.thickness
     screw_width = tab.screw_diameter - material_face.laser_beam_diameter
     if channel_length <= 0.0 or screw_width <= 0.0:
