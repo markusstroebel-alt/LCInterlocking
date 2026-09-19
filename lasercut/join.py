@@ -74,8 +74,12 @@ def screw_way_on_plane(material_plane, screw_nut_spec, pos_y):
 
 def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y, dog_bone=False):
     # horizontal hole
-    vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
-                            + material_plane.thickness_tolerance
+    if getattr(tab, 'tab_type', None) == TabProperties.TYPE_SCREW_IN_NUT:
+        washer_thickness = tab.washer_thickness if tab.use_washer else 0.0
+        vert_corrected_length = screw_nut_spec.screw_length - washer_thickness - tab.nut_depth
+    else:
+        vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
+                                + material_plane.thickness_tolerance
     corrected_width = screw_nut_spec.screw_diameter - material_face.laser_beam_diameter
     screw_corrected_width = corrected_width
     corrected_height = material_face.thickness  # + materialFace.tolerance
