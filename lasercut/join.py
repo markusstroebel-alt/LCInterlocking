@@ -87,8 +87,9 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
-    # Nut hole starts where the screw channel ends; overhang extends its far side.
-    nut_x_pos = 0.0
+    # The face coordinate system starts at the back of the screw channel.
+    # Keep the nut/washer pockets anchored there so they remain inside the face.
+    nut_x_pos = -vert_corrected_length
     corrected_length = (tab.nut_height + tab.nut_slot_overhang) \
                        - material_face.laser_beam_diameter
     corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter
