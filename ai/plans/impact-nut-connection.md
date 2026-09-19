@@ -9,9 +9,9 @@ wie `Screw`, verwendet aber eigene Masse und eine eigene Schraubenlaengenberechn
    definierbaren **Aussendurchmesser**. Ein separates Mutter-Bohrloch ist nicht erforderlich;
    der Schraubendurchmesser bestimmt den inneren Durchgang.
 - Die **Eindrehtiefe** wird separat definiert.
-- Die **Schraubenlaenge** wird aus Washer, Schraubenkanal, Eindrehtiefe und Gewinde-Freiraum
+- Die **Schraubenlaenge** wird eingegeben. Die nutzbare Schraubenkanallaenge wird daraus
    berechnet:
-   `screw_length = washer_thickness + screw_channel_length + nut_depth + thread_clearance`.
+   `screw_channel_length = screw_length - washer_thickness - nut_depth - thread_clearance`.
 - Die bestehende Screw-Variante bleibt unveraendert.
 
 ## Geplantes Vorgehen
@@ -22,7 +22,7 @@ wie `Screw`, verwendet aber eigene Masse und eine eigene Schraubenlaengenberechn
    - gemeinsame Tab-Felder,
    - `half_tab_ratio`,
    - `screw_diameter`,
-   - `screw_channel_length` bzw. die dafuer erforderliche Platten-/Kanalgeometrie,
+   - `screw_length` (Eingabe; reale Schraubenlaenge),
    - `nut_depth` (Eindrehtiefe),
    - `thread_clearance`,
    - `nut_outer_diameter` (Aussendurchmesser der Eindrehmutter),
@@ -31,17 +31,16 @@ wie `Screw`, verwendet aber eigene Masse und eine eigene Schraubenlaengenberechn
    - gemeinsame Zapfen-/Lochlogik wiederverwenden,
    - `screw_way_on_plane` fuer das Gegenstueck wiederverwenden oder eine Variante mit der neuen
      Referenzlaenge schaffen,
-    - auf der Mutterseite eine runde Tasche fuer die Eindrehmutter mit
-       `nut_outer_diameter` und `nut_depth` erzeugen,
-    - den inneren Durchgang aus `screw_diameter` ableiten,
-    - die Schraubenkanal-/Gewindefreiraum-Geometrie ab Washer-Oberkante positionieren,
-    - keine Nutzung der normalen `Screw`-Mutterntaschenformeln.
+   - auf der Mutterseite eine runde Tasche fuer die Eindrehmutter mit
+     `nut_outer_diameter` und `nut_depth` erzeugen,
+   - den inneren Durchgang aus `screw_diameter` ableiten,
+   - die Schraubenkanal-/Gewindefreiraum-Geometrie ab Washer-Oberkante positionieren,
+   - keine Nutzung der normalen `Screw`-Mutterntaschenformeln.
 5. `lasercut/preferences.py` und `panel/preferencespage.py`: Defaults fuer die neuen
    ScrewInNut-Werte (`nut_outer_diameter`, `nut_depth`, `thread_clearance`) in den allgemeinen
    FreeCAD-Einstellungen bereitstellen.
 6. Presets und Dokumentation um den neuen Typ und seine Masse erweitern.
 
-## Offene Fragen (bitte beantworten)
 ## Entschiedene Punkte (vom Nutzer beantwortet)
 1. **Typname**: `ScrewInNut` (Eindrehmutter).
 2. **Muttergeometrie**: Nur der Aussendurchmesser wird angegeben; ein separates Mutter-Bohrloch
@@ -49,8 +48,8 @@ wie `Screw`, verwendet aber eigene Masse und eine eigene Schraubenlaengenberechn
 3. **Schraubendurchgang**: Der innere Durchgang wird aus `screw_diameter` abgeleitet.
 4. **Washer**: Die Washer-Tasche bleibt optional und wird wie beim normalen `Screw` verwendet.
 5. **Eindrehtiefe und Schraubenlaenge**: Die Eindrehtiefe wird separat definiert. Die
-   Schraubenlaenge ergibt sich aus `washer_thickness + screw_channel_length + nut_depth +
-   thread_clearance`.
+   Schraubenlaenge wird eingegeben und die Kanallaenge daraus berechnet:
+   `screw_channel_length = screw_length - washer_thickness - nut_depth - thread_clearance`.
 6. **Gewinde-Freiraum**: `thread_clearance` bleibt ein zusaetzlicher Freiraum hinter der
    Eindrehmutter.
 
