@@ -381,7 +381,8 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
 
         screw_hole = screw_way_on_plane(part_interactor.properties, screw_spec, y)
         insert_radius = (tab.nut_outer_diameter - part_interactor.properties.laser_beam_diameter) / 2.0
-        insert_depth = tab.nut_depth - part_interactor.properties.laser_beam_diameter
+        insert_depth = (tab.nut_depth + tab.thread_clearance) \
+                   - part_interactor.properties.laser_beam_diameter
         insert_hole = Part.makeCylinder(insert_radius, insert_depth,
                                         FreeCAD.Vector(part_interactor.properties.thickness / 2.0,
                                                        y, 0),
