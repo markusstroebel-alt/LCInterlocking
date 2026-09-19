@@ -40,6 +40,9 @@ DEFAULT_WASHER_DIAMETER = 7.0
 DEFAULT_WASHER_THICKNESS = 0.5
 DEFAULT_NUT_OUTER_DIAMETER = 10.0
 DEFAULT_NUT_DEPTH = 8.0
+DEFAULT_USE_NUT_FLANGE_POCKET = False
+DEFAULT_NUT_FLANGE_DIAMETER = 12.0
+DEFAULT_NUT_FLANGE_DEPTH = 1.0
 
 
 def get_param_group():
@@ -124,7 +127,23 @@ def get_default_nut_depth():
     return get_param_group().GetFloat("NutDepth", DEFAULT_NUT_DEPTH)
 
 
-def set_screw_in_nut_defaults(nut_outer_diameter, nut_depth):
+def get_default_use_nut_flange_pocket():
+    return get_param_group().GetBool("UseNutFlangePocket", DEFAULT_USE_NUT_FLANGE_POCKET)
+
+
+def get_default_nut_flange_diameter():
+    return get_param_group().GetFloat("NutFlangeDiameter", DEFAULT_NUT_FLANGE_DIAMETER)
+
+
+def get_default_nut_flange_depth():
+    return get_param_group().GetFloat("NutFlangeDepth", DEFAULT_NUT_FLANGE_DEPTH)
+
+
+def set_screw_in_nut_defaults(nut_outer_diameter, nut_depth, use_nut_flange_pocket,
+                              nut_flange_diameter, nut_flange_depth):
     param = get_param_group()
     param.SetFloat("NutOuterDiameter", nut_outer_diameter)
     param.SetFloat("NutDepth", nut_depth)
+    param.SetBool("UseNutFlangePocket", use_nut_flange_pocket)
+    param.SetFloat("NutFlangeDiameter", nut_flange_diameter)
+    param.SetFloat("NutFlangeDepth", nut_flange_depth)

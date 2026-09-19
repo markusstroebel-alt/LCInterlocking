@@ -60,6 +60,9 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         self.washer_thickness_spin = self._create_spin(0., 100.)
         self.nut_outer_diameter_spin = self._create_spin(0., 300.)
         self.nut_depth_spin = self._create_spin(0., 300.)
+        self.use_nut_flange_pocket_check = QtGui.QCheckBox("", self)
+        self.nut_flange_diameter_spin = self._create_spin(0., 300.)
+        self.nut_flange_depth_spin = self._create_spin(0., 300.)
 
         self.presets_table = QtGui.QTableWidget(self)
         self.presets_table.setSortingEnabled(False)
@@ -86,6 +89,9 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         layout.addRow("Washer thickness (mm)", self.washer_thickness_spin)
         layout.addRow("ScrewInNut outer diameter (mm)", self.nut_outer_diameter_spin)
         layout.addRow("ScrewInNut depth (mm)", self.nut_depth_spin)
+        layout.addRow("Use ScrewInNut flange pocket", self.use_nut_flange_pocket_check)
+        layout.addRow("ScrewInNut flange pocket diameter (mm)", self.nut_flange_diameter_spin)
+        layout.addRow("ScrewInNut flange pocket depth (mm)", self.nut_flange_depth_spin)
         layout.addRow("Global connection presets", self.presets_table)
         preset_buttons = QtGui.QHBoxLayout()
         preset_buttons.addWidget(self.add_preset_button)
@@ -115,6 +121,9 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         self.washer_thickness_spin.setValue(preferences.get_default_washer_thickness())
         self.nut_outer_diameter_spin.setValue(preferences.get_default_nut_outer_diameter())
         self.nut_depth_spin.setValue(preferences.get_default_nut_depth())
+        self.use_nut_flange_pocket_check.setChecked(preferences.get_default_use_nut_flange_pocket())
+        self.nut_flange_diameter_spin.setValue(preferences.get_default_nut_flange_diameter())
+        self.nut_flange_depth_spin.setValue(preferences.get_default_nut_flange_depth())
         self.load_preset_table()
 
     def saveSettings(self):
@@ -128,7 +137,10 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
             self.use_washer_check.isChecked(), self.washer_diameter_spin.value(),
             self.washer_thickness_spin.value())
         preferences.set_screw_in_nut_defaults(self.nut_outer_diameter_spin.value(),
-                                              self.nut_depth_spin.value())
+                                              self.nut_depth_spin.value(),
+                                              self.use_nut_flange_pocket_check.isChecked(),
+                                              self.nut_flange_diameter_spin.value(),
+                                              self.nut_flange_depth_spin.value())
         self.save_preset_table()
 
     def load_preset_table(self):

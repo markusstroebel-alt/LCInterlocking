@@ -410,6 +410,16 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
                                                        y, 0),
                                         FreeCAD.Vector(1, 0, 0))
         part_interactor.toRemove.append(helper.transform_part(insert_hole, tab))
+
+        if tab.use_nut_flange_pocket:
+            flange_radius = (tab.nut_flange_diameter
+                             - part_interactor.properties.laser_beam_diameter) / 2.0
+            if flange_radius <= insert_radius or tab.nut_flange_depth <= 0.0:
+                raise ValueError("ScrewInNut flange pocket must be wider than the insert pocket and positive")
+            flange_hole = Part.makeCylinder(flange_radius, tab.nut_flange_depth,
+                                            FreeCAD.Vector(0, y, 0),
+                                            FreeCAD.Vector(1, 0, 0))
+            part_interactor.toRemove.append(helper.transform_part(flange_hole, tab))
     return
 
 

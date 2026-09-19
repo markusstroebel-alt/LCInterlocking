@@ -33,7 +33,8 @@ KNOWN_PRESET_PROPERTIES = (
     "tab_dog_bone", "y_invert", "half_tab_ratio", "screw_diameter", "screw_length",
     "screw_length_tol", "nut_flat_flat", "nut_height", "nut_slot_overhang",
     "thread_clearance", "use_washer", "washer_diameter", "washer_thickness",
-    "nut_outer_diameter", "nut_depth", "head_clearance")
+    "nut_outer_diameter", "nut_depth", "head_clearance", "use_nut_flange_pocket",
+    "nut_flange_diameter", "nut_flange_depth")
 
 
 def get_presets_file_path():

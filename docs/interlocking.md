@@ -68,11 +68,11 @@ Additional Information
     the screw shaft in the other part, without the pocket for a nut/washer — useful when the screw
     threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
   * "ScrewInNut" is the connection type for a screw-in nut (Eindrehmutter). It uses a separate
-    outer diameter and nut depth. Enter the screw length; the screw channel is derived by subtracting
-    washer thickness, nut depth and thread clearance. The screw-head side uses the same pocket
-    geometry as "Screw"; the opposite plate receives the through-hole plus the round blind insert
-    hole. "Head clearance" enlarges the head-side pocket; it does not shift the complete pocket
-    stack or change the lower thread clearance.
+    outer diameter and nut depth. The screw channel is `screw length - washer thickness - nut depth`;
+    thread clearance is a separate reserve in the insert pocket. An optional flange pocket adds a
+    concentric, larger-diameter pocket on the insert side for a nut flange. Its diameter and depth
+    do not change the screw-channel calculation. "Head clearance" creates a screw-width access
+    channel for an Allen key without changing the screw channel length.
   * Screw connections expose separate values for "Screw length", "Nut height", "Nut slot overhang"
     and "Thread clearance". The last value adds free space behind the nut for the protruding thread.
     Defaults for these and the other Screw dimensions can be configured in Edit -> Preferences ->
