@@ -385,7 +385,7 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
         insert_hole = Part.makeCylinder(insert_radius, insert_depth,
                                         FreeCAD.Vector(part_interactor.properties.thickness / 2.0,
                                                        y, 0),
-                                        FreeCAD.Vector(1, 0, 0))
+                                        FreeCAD.Vector(-1, 0, 0))
         screw_hole = screw_hole.fuse(insert_hole)
         part_interactor.toRemove.append(helper.transform_part(screw_hole, tab))
     return
