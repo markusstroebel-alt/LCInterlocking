@@ -92,11 +92,13 @@ class TabProperties(helper.ObjectProperties):
             self.screw_diameter = preferences.get_default_screw_diameter()
         if not hasattr(self, 'screw_length'):
             self.screw_length = preferences.get_default_screw_length()
+        legacy_screw_length_tol = getattr(self, 'screw_length_tol', None)
         if not hasattr(self, 'screw_length_tol'):
             self.screw_length_tol = 0.5
         if not hasattr(self, 'nut_slot_overhang'):
-            self.nut_slot_overhang = getattr(self, 'screw_length_tol',
-                                             preferences.get_default_nut_slot_overhang())
+            self.nut_slot_overhang = (legacy_screw_length_tol
+                                      if legacy_screw_length_tol is not None
+                                      else preferences.get_default_nut_slot_overhang())
         if not hasattr(self, 'thread_clearance'):
             self.thread_clearance = preferences.get_default_thread_clearance()
         if not hasattr(self, 'through_tabs'):
