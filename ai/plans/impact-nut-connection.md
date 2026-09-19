@@ -11,7 +11,8 @@ wie `Screw`, verwendet aber eigene Masse und eine eigene Schraubenlaengenberechn
 - Die **Eindrehtiefe** wird separat definiert.
 - Die **Schraubenlaenge** wird eingegeben. Die nutzbare Schraubenkanallaenge wird daraus
    berechnet:
-   `screw_channel_length = screw_length - washer_thickness - nut_depth - thread_clearance`.
+   `screw_channel_length = screw_length - washer_thickness - nut_depth`.
+   `thread_clearance` is separate reserve in the blind hole and is not part of the screw length.
 - Die bestehende Screw-Variante bleibt unveraendert.
 
 ## Geplantes Vorgehen
@@ -49,7 +50,7 @@ wie `Screw`, verwendet aber eigene Masse und eine eigene Schraubenlaengenberechn
 4. **Washer**: Die Washer-Tasche bleibt optional und wird wie beim normalen `Screw` verwendet.
 5. **Eindrehtiefe und Schraubenlaenge**: Die Eindrehtiefe wird separat definiert. Die
    Schraubenlaenge wird eingegeben und die Kanallaenge daraus berechnet:
-   `screw_channel_length = screw_length - washer_thickness - nut_depth - thread_clearance`.
+   `screw_channel_length = screw_length - washer_thickness - nut_depth`.
 6. **Gewinde-Freiraum**: `thread_clearance` bleibt ein zusaetzlicher Freiraum hinter der
    Eindrehmutter.
 

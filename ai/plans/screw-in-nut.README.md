@@ -7,7 +7,9 @@ berechnet.
 
 ## Berechnung
 ```text
-screw_channel_length = screw_length - washer_thickness - nut_depth - thread_clearance
+	screw_channel_length = screw_length - washer_thickness - nut_depth
+
+The thread clearance is separate blind-hole reserve and is not part of the screw length.
 ```
 
 ## Neue Eingaben
