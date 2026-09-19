@@ -24,6 +24,7 @@
 
 from PySide import QtCore, QtGui
 from lasercut import helper
+from lasercut import presets
 import FreeCAD
 
 class WidgetValue(helper.ObjectProperties):
@@ -49,11 +50,100 @@ class ParamWidget(object):
         # group box later, and attaching it to the parent widget would conflict
         # with any existing layout on that widget.
         widgets_grid = QtGui.QGridLayout()
+        if self.get_preset_type() is not None:
+            self.create_preset_row(widgets_grid, row_index)
+            row_index += 1
         for widget in self.widget_list:
             self.create_item(widget, widgets_grid, row_index)
             row_index += 1
         self.listchangeIndex(0)
         return widgets_grid
+
+    def get_preset_type(self):
+        # Presets are grouped by tab_type; widgets whose object has no tab_type
+        # (e.g. material/box parameters) simply don't offer presets.
+        return getattr(self.object_property, 'tab_type', None)
+
+    def create_preset_row(self, grid, row_index):
+        label = QtGui.QLabel(self.form)
+        label.setText("Preset : ")
+        self.preset_combo = QtGui.QComboBox(self.form)
+        self.reload_presets_combo()
+        self.preset_combo.currentIndexChanged.connect(self.apply_preset)
+        save_button = QtGui.QPushButton("Save as...", self.form)
+        save_button.clicked.connect(self.save_preset)
+        delete_button = QtGui.QPushButton("Delete", self.form)
+        delete_button.clicked.connect(self.delete_preset)
+
+        buttons_layout = QtGui.QHBoxLayout()
+        buttons_layout.addWidget(self.preset_combo)
+        buttons_layout.addWidget(save_button)
+        buttons_layout.addWidget(delete_button)
+        grid.addWidget(label, row_index, 0)
+        grid.addLayout(buttons_layout, row_index, 1)
+
+    def reload_presets_combo(self):
+        self.preset_combo.blockSignals(True)
+        self.preset_combo.clear()
+        self.preset_combo.addItem("")
+        for preset in presets.get_presets_for_type(self.get_preset_type()):
+            self.preset_combo.addItem(preset["name"])
+        self.preset_combo.blockSignals(False)
+
+    def apply_preset(self, index):
+        name = self.preset_combo.currentText()
+        if not name:
+            return
+        for preset in presets.get_presets_for_type(self.get_preset_type()):
+            if preset["name"] == name:
+                self.apply_preset_values(preset["values"])
+                break
+
+    def apply_preset_values(self, values):
+        for widget_config in self.widget_list:
+            if widget_config.name not in values:
+                continue
+            value = values[widget_config.name]
+            if widget_config.type == float and not hasattr(widget_config, 'step'):
+                continue
+            elif widget_config.type == float:
+                widget_config.widget.setValue(value)
+            elif widget_config.type == bool:
+                widget_config.widget.setCheckState(QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
+            elif widget_config.type == str:
+                widget_config.widget.setText(value)
+            elif widget_config.type == list:
+                combo_index = widget_config.widget.findText(value)
+                if combo_index >= 0:
+                    widget_config.widget.setCurrentIndex(combo_index)
+        self.listchangeIndex(0)
+
+    def gather_current_values(self):
+        self.get_properties()
+        values = {}
+        for widget_config in self.widget_list:
+            if widget_config.type == float and not hasattr(widget_config, 'step'):
+                continue
+            values[widget_config.name] = self.get_property_value(widget_config.name)
+        return values
+
+    def save_preset(self):
+        name, ok = QtGui.QInputDialog.getText(self.form, "Save preset", "Preset name:",
+                                              QtGui.QLineEdit.Normal, self.preset_combo.currentText())
+        if not ok or not name:
+            return
+        presets.add_or_update_preset(self.get_preset_type(), name, self.gather_current_values())
+        self.reload_presets_combo()
+        combo_index = self.preset_combo.findText(name)
+        if combo_index >= 0:
+            self.preset_combo.setCurrentIndex(combo_index)
+
+    def delete_preset(self):
+        name = self.preset_combo.currentText()
+        if not name:
+            return
+        presets.delete_preset(self.get_preset_type(), name)
+        self.reload_presets_combo()
 
     def create_item(self, widget_config, grid, row_index):
         widget_config.widget_title = QtGui.QLabel(self.form)
@@ -73,6 +163,7 @@ class ParamWidget(object):
             widget_config.widget = QtGui.QCheckBox("", self.form)
             state = QtCore.Qt.Checked if self.get_property_value(widget_config.name) == True else QtCore.Qt.Unchecked
             widget_config.widget.setCheckState(state)
+            widget_config.widget.stateChanged.connect(self.listchangeIndex)
         elif widget_config.type == list:
             widget_config.widget = QtGui.QComboBox(self.form)
             widget_config.widget.addItems(widget_config.interval_value)

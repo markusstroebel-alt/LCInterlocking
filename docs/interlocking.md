@@ -5,7 +5,7 @@ This is the main tool of the LCInterlocking module. It allows to define connecti
 
 Parts can come from the Freecad Part/Part Design workshops or from the box generator tool of this module for example. To create a connection, the faces must stick.
 
-There are three type of connections : tab, continuous tab and screw. <br>
+There are four type of connections : tab, continuous tab, screw and wood screw. <br>
 ![Illustration](imgs/interlocking/tab.png) <br>
 ![Illustration](imgs/interlocking/continuous.png) <br>
 ![Illustration](imgs/interlocking/screw.png)<br>
@@ -49,5 +49,40 @@ Additional Information
   * Interlocking properties can be edited again clicking on "MultiJoin" group item.
   * In editing mode, parts and faces can can be visualized by selecting the in the treview of the tools. Then they can be displayed/hidden by tapping in the key "space".
   * Preview button allow to create a new document with interlocking parts without exiting tool. It's convenient to adjust connection parameters.
-  * "Add same faces" works as "Add same parts", faces while share the same connection properties. 
-  
+  * "Add same faces" works as "Add same parts", faces while share the same connection properties.
+  * For "screw" connections, the nut pocket shape is defined by "Nut flat to flat" and "Nut height",
+    both freely editable (suggested values are pre-filled from the screw dimensions, or from the
+    last values used in the current session).
+  * Optionally, check "Use washer" to add a rectangular through-cut pocket for a washer, handled
+    just like the nut pocket and positioned directly after it. Its width and length ("Washer
+    diameter"/"Washer thickness") are also freely editable, with a suggested default.
+  * A "Preset" dropdown is available above the connection properties. Selecting a preset fills in
+    all matching fields at once; "Save as..." stores the current values under a name, "Delete"
+    removes the selected preset. Presets are stored globally (available in every project) and are
+    filtered by connection type.
+  * The default values for "Thickness tolerance", "Laser beam diameter" and "Slot width tolerance"
+    can be configured under Edit → Preferences → LCInterlocking. New materials use these values
+    automatically; existing materials can be updated with the "Reset tolerances to defaults"
+    button in the material properties.
+  * "WoodScrew" is a lighter alternative to "Screw": it only creates the tabs and a round hole for
+    the screw shaft in the other part, without the pocket for a nut/washer — useful when the screw
+    threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
+  * "ScrewInNut" is the connection type for a screw-in nut (Eindrehmutter). It uses a separate
+    outer diameter and nut depth. The screw channel is `screw length - washer thickness - nut depth`;
+    thread clearance is a separate reserve in the insert pocket. An optional flange pocket adds a
+    concentric, larger-diameter pocket on the insert side for a nut flange. Its diameter and depth
+    do not change the screw-channel calculation. "Head clearance" creates a screw-width access
+    channel for an Allen key without changing the screw channel length.
+  * Screw connections expose separate values for "Screw length", "Nut height", "Nut slot overhang"
+    and "Thread clearance". The last value adds free space behind the nut for the protruding thread.
+    Defaults for these and the other Screw dimensions can be configured in Edit -> Preferences ->
+    LCInterlocking; existing connections keep their own values.
+  * Global connection presets can be reviewed and edited in the "Global connection presets" table
+    in the same preferences page. Use "Add preset", "Delete selected" and "Save presets" to
+    manage the shared preset file.
+  * All tab connections have a "Through tabs" option. When disabled, "Tab length" defines the
+    absolute length of the tab in millimetres and the matching geometry is generated as a blind
+    pocket instead of a through cut. "Tab length" and "Tab length tolerance" remain visible in
+    both modes; the tolerance defines the additional pocket depth and defaults to 0.5 mm. The
+    default through-tab mode keeps the existing behavior.
+

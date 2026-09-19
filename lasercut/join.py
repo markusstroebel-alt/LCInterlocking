@@ -41,6 +41,7 @@ def get_slot_positions(tab_properties):
             if tab_properties.interval_ratio != 1.0:
                 left *= tab_properties.interval_ratio
                 right *= tab_properties.interval_ratio
+                right *= tab_properties.interval_ratio
             slots_list.append(left + tab_properties.tabs_shift)
             slots_list.append(right + tab_properties.tabs_shift)
     else:
@@ -64,18 +65,23 @@ def get_slot_positions(tab_properties):
 
 def screw_way_on_plane(material_plane, screw_nut_spec, pos_y):
     # horizontal hole
-    radius = (screw_nut_spec.screw_diameter * 1.2 - material_plane.laser_beam_diameter) / 2.0
+    radius = (screw_nut_spec.screw_diameter - material_plane.laser_beam_diameter) / 2.0
     cylinder = Part.makeCylinder(radius, material_plane.thickness, FreeCAD.Vector(0, 0, -material_plane.thickness / 2.))
     cylinder.rotate(FreeCAD.Vector(0, 0, 0), FreeCAD.Vector(0, 1, 0), 90)
     cylinder.translate(FreeCAD.Vector(material_plane.thickness / 2.0, pos_y, 0.))
     return cylinder
 
 
-def screw_way_on_face(material_face, material_plane, screw_nut_spec, pos_y, dog_bone=False):
+def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y, dog_bone=False):
     # horizontal hole
-    vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
-                            + material_plane.thickness_tolerance + screw_nut_spec.screw_length_tol
-    corrected_width = screw_nut_spec.screw_diameter * 1.2 - material_face.laser_beam_diameter
+    if getattr(tab, 'tab_type', None) == TabProperties.TYPE_SCREW_IN_NUT:
+        washer_thickness = tab.washer_thickness if tab.use_washer else 0.0
+        vert_corrected_length = screw_nut_spec.screw_length - washer_thickness - tab.nut_depth
+    else:
+        vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
+                                + material_plane.thickness_tolerance
+    corrected_width = screw_nut_spec.screw_diameter - material_face.laser_beam_diameter
+    screw_corrected_width = corrected_width
     corrected_height = material_face.thickness  # + materialFace.tolerance
     screw_hole = Part.makeBox(vert_corrected_length, corrected_width, corrected_height,
                               FreeCAD.Vector(0.,
@@ -84,17 +90,124 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, pos_y, dog_
         screw_hole = helper.make_dog_bone_on_limits_on_xy(screw_hole, corrected_height, True)
     x_pos = -vert_corrected_length
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
-    # Nut hole
-    corrected_length = screw_nut_spec.nut_height - material_face.laser_beam_diameter + 0.1
-    corrected_width = screw_nut_spec.nut_flat_flat - material_face.laser_beam_diameter + 0.1
+    hole = screw_hole
+
+    if getattr(tab, 'tab_type', None) == TabProperties.TYPE_SCREW_IN_NUT:
+        # The washer and head pocket follow the channel, away from the plate.
+        # Their position must not change the channel reference or its length.
+        pocket_x_pos = -vert_corrected_length
+    else:
+        # The normal Screw connection positions its nut/washer stack at the
+        # far end of the channel.
+        nut_depth_offset = tab.nut_height + tab.nut_slot_overhang \
+                           + getattr(tab, 'screw_length_tol', 0.5)
+        if tab.use_washer:
+            nut_depth_offset += tab.washer_thickness
+        pocket_x_pos = -vert_corrected_length + nut_depth_offset
+
+    # Washer hole comes directly after the screw channel.
+    if tab.use_washer:
+        washer_length = tab.washer_thickness - material_face.laser_beam_diameter
+        washer_width = tab.washer_diameter - material_face.laser_beam_diameter
+        washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
+                                   FreeCAD.Vector(0,
+                                                  -washer_width / 2.0, -corrected_height / 2.0))
+        washer_hole.translate(FreeCAD.Vector(pocket_x_pos - washer_length, pos_y, 0))
+        if dog_bone:
+            washer_hole = helper.make_dog_bone_on_limits_on_xy(washer_hole, corrected_height)
+        hole = hole.fuse(washer_hole)
+        pocket_x_pos -= washer_length
+
+    # Nut hole follows the washer and keeps the actual nut dimensions only.
+    corrected_length = tab.nut_height - material_face.laser_beam_diameter
+    corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter
+    nut_x_pos = pocket_x_pos - corrected_length
     nut_hole = Part.makeBox(corrected_length, corrected_width, corrected_height,
                             FreeCAD.Vector(0,
                                            -corrected_width / 2.0, -corrected_height / 2.0))
-    x_pos = -vert_corrected_length + screw_nut_spec.nut_height + screw_nut_spec.screw_length_tol
-    nut_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
+    nut_hole.translate(FreeCAD.Vector(nut_x_pos, pos_y, 0))
     if dog_bone:
         nut_hole = helper.make_dog_bone_on_limits_on_xy(nut_hole, corrected_height)
-    hole = screw_hole.fuse(nut_hole)
+    hole = hole.fuse(nut_hole)
+
+    if getattr(tab, 'tab_type', None) == TabProperties.TYPE_SCREW_IN_NUT:
+        head_clearance_length = getattr(tab, 'head_clearance', 0.0)
+        if head_clearance_length > 0.0:
+            # Continue past the head pocket in screw width for Allen-key access.
+            head_clearance_hole = Part.makeBox(
+                head_clearance_length, screw_corrected_width, corrected_height,
+                FreeCAD.Vector(nut_x_pos - head_clearance_length,
+                               -screw_corrected_width / 2.0,
+                               -corrected_height / 2.0))
+            head_clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+            hole = hole.fuse(head_clearance_hole)
+
+    # Screw-width channel for the thread passing through and beyond the nut.
+    overhang_length = tab.nut_slot_overhang - material_face.laser_beam_diameter
+    effective_overhang_length = max(overhang_length, 0.0)
+    if overhang_length > 0.0:
+        overhang_x_pos = nut_x_pos - overhang_length
+        overhang_hole = Part.makeBox(
+            overhang_length, screw_corrected_width, corrected_height,
+            FreeCAD.Vector(overhang_x_pos, -screw_corrected_width / 2.0,
+                           -corrected_height / 2.0))
+        overhang_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(overhang_hole)
+
+    # Thread clearance continues directly behind the nut/washer pockets.
+    clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
+    if clearance_length > 0.0:
+        clearance_x_pos = nut_x_pos - effective_overhang_length - clearance_length
+        thread_clearance_hole = Part.makeBox(
+            clearance_length, screw_corrected_width, corrected_height,
+            FreeCAD.Vector(clearance_x_pos, -screw_corrected_width / 2.0,
+                           -corrected_height / 2.0))
+        thread_clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(thread_clearance_hole)
+    return hole
+
+
+def screw_in_nut_way_on_face(material_face, material_plane, tab, pos_y, dog_bone=False):
+    washer_thickness = tab.washer_thickness if tab.use_washer else 0.0
+    channel_length = tab.screw_length - washer_thickness - tab.nut_depth
+    corrected_height = material_face.thickness
+    screw_width = tab.screw_diameter - material_face.laser_beam_diameter
+    if channel_length <= 0.0 or screw_width <= 0.0:
+        raise ValueError("ScrewInNut dimensions leave no positive screw channel")
+
+    pocket_x_pos = -channel_length
+    hole = Part.makeBox(channel_length, screw_width, corrected_height,
+                        FreeCAD.Vector(pocket_x_pos, -screw_width / 2.0,
+                                       -corrected_height / 2.0))
+    hole.translate(FreeCAD.Vector(0, pos_y, 0))
+
+    if tab.use_washer:
+        washer_length = tab.washer_thickness - material_face.laser_beam_diameter
+        washer_width = tab.washer_diameter - material_face.laser_beam_diameter
+        washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
+                       FreeCAD.Vector(-washer_length,
+                                                  -washer_width / 2.0,
+                                                  -corrected_height / 2.0))
+        washer_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(washer_hole)
+        pocket_x_pos = -washer_length
+
+    nut_depth = tab.nut_depth - material_face.laser_beam_diameter
+    nut_radius = (tab.nut_outer_diameter - material_face.laser_beam_diameter) / 2.0
+    nut_x_pos = pocket_x_pos - nut_depth
+    nut_hole = Part.makeCylinder(nut_radius, nut_depth,
+                                 FreeCAD.Vector(nut_x_pos, pos_y, 0),
+                                 FreeCAD.Vector(1, 0, 0))
+    hole = hole.fuse(nut_hole)
+
+    clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
+    if clearance_length > 0.0:
+        clearance_hole = Part.makeBox(clearance_length, screw_width, corrected_height,
+                          FreeCAD.Vector(nut_x_pos - clearance_length,
+                                                     -screw_width / 2.0,
+                                                     -corrected_height / 2.0))
+        clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(clearance_hole)
     return hole
 
 
@@ -115,6 +228,8 @@ def tab_join_create_tab_on_face(material_face, material_plane, width, pos_y, tab
     # Y Ajout d'un Kerf => width
     # Z Rien => height
     corrected_length = material_plane.thickness
+    if not getattr(tab_face, 'through_tabs', True):
+        corrected_length = tab_face.tab_length
     # corrected_width = width + materialFace.laser_beam_diameter
     corrected_height = material_face.thickness
 
@@ -209,10 +324,9 @@ def make_continuous_tab_joins(tab, tab_part, other_parts):
     return
 
 
-def make_tslot_tab_join(tab, tab_part, other_parts):
-    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
-    screw_nut_spec = helper.get_screw_nut_spec(tab.screw_diameter, tab.screw_length)
-    screw_nut_spec.screw_length_tol = tab.screw_length_tol
+def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+    # Shared by all screw-like tab types: creates the tabs (tenons) and their matching
+    # holes, yielding (y, part_interactor) for each successfully matched slot position.
     slots_pos = get_slot_positions(tab)
     for i, y in enumerate(slots_pos):
         for part_interactor in other_parts:
@@ -248,14 +362,64 @@ def make_tslot_tab_join(tab, tab_part, other_parts):
                 part_interactor.toRemove.append(helper.transform_part(left_hole, tab))
                 part_interactor.toRemove.append(helper.transform_part(right_hole, tab))
 
-                screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
-                                                        screw_nut_spec, y, tab.dog_bone)
-                screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_nut_spec, y)
-
-                tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
-                part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
-
+                yield y, part_interactor
                 break
+
+
+def make_tslot_tab_join(tab, tab_part, other_parts):
+    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
+    screw_nut_spec = helper.ObjectProperties(screw_diameter=tab.screw_diameter,
+                                              screw_length=tab.screw_length)
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+        screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
+                                                screw_nut_spec, tab, y, tab.dog_bone)
+        screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_nut_spec, y)
+
+        tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
+        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
+    return
+
+
+def make_wood_screw_tab_join(tab, tab_part, other_parts):
+    # Only the tabs and a round hole for the screw shaft, no pocket for a nut/washer.
+    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+        screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, tab, y)
+        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
+    return
+
+
+def make_screw_in_nut_join(tab, tab_part, other_parts):
+    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
+    screw_spec = helper.ObjectProperties(screw_diameter=tab.screw_diameter,
+                                         screw_length=tab.screw_length)
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+        # The head side uses the same pocket geometry as a normal Screw connection.
+        head_tab = helper.ObjectProperties(**tab.__dict__)
+        head_tab.thread_clearance = 0.0
+        head_tab.screw_length_tol = 0.0
+        head_tab.nut_slot_overhang = 0.0
+        head_pocket = screw_way_on_face(tab_part.properties, part_interactor.properties,
+                                        screw_spec, head_tab, y, tab.dog_bone)
+        tab_part.toRemove.append(helper.transform_part(head_pocket, tab))
+
+        insert_radius = (tab.nut_outer_diameter - part_interactor.properties.laser_beam_diameter) / 2.0
+        insert_depth = tab.nut_depth + tab.thread_clearance
+        insert_hole = Part.makeCylinder(insert_radius, insert_depth,
+                                        FreeCAD.Vector(0,
+                                                       y, 0),
+                                        FreeCAD.Vector(1, 0, 0))
+        part_interactor.toRemove.append(helper.transform_part(insert_hole, tab))
+
+        if tab.use_nut_flange_pocket:
+            flange_radius = (tab.nut_flange_diameter
+                             - part_interactor.properties.laser_beam_diameter) / 2.0
+            if flange_radius <= insert_radius or tab.nut_flange_depth <= 0.0:
+                raise ValueError("ScrewInNut flange pocket must be wider than the insert pocket and positive")
+            flange_hole = Part.makeCylinder(flange_radius, tab.nut_flange_depth,
+                                            FreeCAD.Vector(0, y, 0),
+                                            FreeCAD.Vector(1, 0, 0))
+            part_interactor.toRemove.append(helper.transform_part(flange_hole, tab))
     return
 
 
@@ -291,6 +455,10 @@ def make_tabs_joins(parts, tabs):
             make_continuous_tab_joins(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_FLEX:
             flextab.make_flex_tab_join(tab, tab_part, other_parts)
+        elif tab.tab_type == TabProperties.TYPE_WOOD_SCREW:
+            make_wood_screw_tab_join(tab, tab_part, other_parts)
+        elif tab.tab_type == TabProperties.TYPE_SCREW_IN_NUT:
+            make_screw_in_nut_join(tab, tab_part, other_parts)
         else:
             raise ValueError("Unknown tab type")
     return parts_element

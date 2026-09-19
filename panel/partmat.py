@@ -26,6 +26,7 @@
 from PySide import QtCore, QtGui
 from lasercut.material import MaterialProperties
 from lasercut.helper import compare_value
+from lasercut import preferences
 from panel.toolwidget import ParamWidget, WidgetValue
 import copy
 import FreeCAD # todo : remove import
@@ -47,6 +48,18 @@ class Part(ParamWidget):
                                              widget=None, interval_value=[0., 30.], decimals=4, step=0.05),
                                  WidgetValue(type=float, name="laser_beam_diameter", show_name="Laser beam diameter",
                                              widget=None, interval_value=[0., 30.], decimals=4, step=0.05)])
+
+    def get_group_box(self, widget):
+        group_box, grid = ParamWidget.get_group_box(self, widget)
+        reset_button = QtGui.QPushButton("Reset tolerances to defaults", widget)
+        reset_button.clicked.connect(self.reset_tolerances_to_defaults)
+        grid.addWidget(reset_button, grid.rowCount(), 0, 1, 2)
+        return group_box, grid
+
+    def reset_tolerances_to_defaults(self):
+        self.get_widget("thickness_tolerance").setValue(preferences.get_default_thickness_tolerance())
+        self.get_widget("laser_beam_diameter").setValue(preferences.get_default_laser_beam_diameter())
+        self.get_widget("hole_width_tolerance").setValue(preferences.get_default_hole_width_tolerance())
 
 
 class CrossPartWidget(Part):

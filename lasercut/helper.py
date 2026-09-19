@@ -118,6 +118,29 @@ def get_screw_nut_spec(metric_diameter, metric_length):
     raise ValueError("Unknown screw diameter")
 
 
+# http://www.fairburyfastener.com/xdims_metric_washers.htm (ISO 7089 flat washers)
+def get_washer_spec(metric_diameter):
+    if metric_diameter == 1.6:
+        return ObjectProperties(washer_diameter=4., washer_thickness=0.3)
+    elif metric_diameter == 2:
+        return ObjectProperties(washer_diameter=5., washer_thickness=0.3)
+    elif metric_diameter == 2.5:
+        return ObjectProperties(washer_diameter=6., washer_thickness=0.5)
+    elif metric_diameter == 3:
+        return ObjectProperties(washer_diameter=7., washer_thickness=0.5)
+    elif metric_diameter == 4:
+        return ObjectProperties(washer_diameter=9., washer_thickness=0.8)
+    elif metric_diameter == 5:
+        return ObjectProperties(washer_diameter=10., washer_thickness=1.0)
+    elif metric_diameter == 6:
+        return ObjectProperties(washer_diameter=12., washer_thickness=1.6)
+    elif metric_diameter == 8:
+        return ObjectProperties(washer_diameter=16., washer_thickness=1.6)
+    elif metric_diameter == 10:
+        return ObjectProperties(washer_diameter=20., washer_thickness=2.0)
+    raise ValueError("Unknown screw diameter")
+
+
 def transform_part(tab_to_add, face):
     y_invert = False
     if hasattr(face, 'y_invert'):
@@ -397,6 +420,8 @@ def tab_join_create_hole_on_plane(tab_face, width, pos_y, material_face, materia
     y_plus_inside, y_minus_inside = check_limit_y(tab_face, material_face.thickness, pos_y, width, material_plane)
     #print("z_plus_inside %r, z_minus_inside %r" % (z_plus_inside, z_minus_inside))
     corrected_length = material_plane.thickness  # OK
+    if not getattr(tab_face, 'through_tabs', True):
+        corrected_length = tab_face.tab_length + tab_face.tab_length_tolerance
 
     corrected_width = width + material_plane.hole_width_tolerance # - materialPlane.laser_beam_diameter
     corrected_width_center = corrected_width / 2.0

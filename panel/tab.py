@@ -40,6 +40,11 @@ class BaseTabWidget(ParamWidget):
         ParamWidget.__init__(self, tab_properties)
         self.widget_list.extend([WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
                                  WidgetValue(type=float, name="thickness", show_name="Thickness", widget=None),
+                                 WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
+                                 WidgetValue(type=float, name="tab_length", show_name="Tab length",
+                                             widget=None, interval_value=[0.01, 3000.], step=0.5, decimals=2),
+                                 WidgetValue(type=float, name="tab_length_tolerance", show_name="Tab length tolerance",
+                                             widget=None, interval_value=[0., 100.], step=0.1, decimals=2),
                                 WidgetValue(type=float, name="tabs_number", show_name="Number of tabs",
                                             widget=None, interval_value=[1., 300.], step=1., decimals=0),
                                 WidgetValue(type=float, name="tabs_width", show_name="Width of tabs", widget=None,
@@ -62,6 +67,59 @@ class TabWidget(BaseTabWidget):
         BaseTabWidget.__init__(self, tab_properties)
 
 
+class WoodScrewWidget(BaseTabWidget):
+
+    def __init__(self, tab_properties):
+        BaseTabWidget.__init__(self, tab_properties)
+
+        self.widget_list.extend([WidgetValue(type=float, name="half_tab_ratio", show_name="Half tab ratio",
+                                             widget=None, interval_value=[0.1, 5.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="screw_diameter", show_name="Screw diameter",
+                                            widget=None, interval_value=[1., 30.], step=1., decimals=2.)])
+
+
+class ScrewInNutWidget(BaseTabWidget):
+
+    def __init__(self, tab_properties):
+        BaseTabWidget.__init__(self, tab_properties)
+
+        self.widget_list.extend([WidgetValue(type=float, name="half_tab_ratio", show_name="Half tab ratio",
+                                             widget=None, interval_value=[0.1, 5.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="screw_diameter", show_name="Screw diameter",
+                                            widget=None, interval_value=[1., 100.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="screw_length", show_name="Screw length",
+                                            widget=None, interval_value=[1., 3000.], step=0.5, decimals=2),
+                                WidgetValue(type=float, name="nut_flat_flat", show_name="Head pocket width",
+                                            widget=None, interval_value=[1., 300.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="nut_height", show_name="Head pocket length",
+                                            widget=None, interval_value=[0.1, 300.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="head_clearance", show_name="Head clearance",
+                                            widget=None, interval_value=[0., 300.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="nut_outer_diameter", show_name="Nut outer diameter",
+                                            widget=None, interval_value=[1., 300.], step=0.1, decimals=2),
+                                WidgetValue(type=float, name="nut_depth", show_name="Nut depth",
+                                            widget=None, interval_value=[0.1, 300.], step=0.1, decimals=2),
+                                WidgetValue(type=bool, name="use_nut_flange_pocket",
+                                            show_name="Use nut flange pocket", widget=None),
+                                WidgetValue(type=float, name="nut_flange_diameter",
+                                            show_name="Flange pocket diameter", widget=None,
+                                            interval_value=[1., 300.], step=0.1, decimals=2,
+                                            parent_name="use_nut_flange_pocket", parent_value=[True]),
+                                WidgetValue(type=float, name="nut_flange_depth",
+                                            show_name="Flange pocket depth", widget=None,
+                                            interval_value=[0.1, 300.], step=0.1, decimals=2,
+                                            parent_name="use_nut_flange_pocket", parent_value=[True]),
+                                WidgetValue(type=float, name="thread_clearance", show_name="Thread clearance",
+                                            widget=None, interval_value=[0., 300.], step=0.1, decimals=2),
+                                WidgetValue(type=bool, name="use_washer", show_name="Use washer", widget=None),
+                                WidgetValue(type=float, name="washer_diameter", show_name="Washer diameter",
+                                            widget=None, interval_value=[1., 300.], step=0.1, decimals=2,
+                                            parent_name="use_washer", parent_value=[True]),
+                                WidgetValue(type=float, name="washer_thickness", show_name="Washer thickness",
+                                            widget=None, interval_value=[0.1, 100.], step=0.1, decimals=2,
+                                            parent_name="use_washer", parent_value=[True])])
+
+
 class TSlotWidget(BaseTabWidget):
 
     def __init__(self, tab_properties):
@@ -73,8 +131,21 @@ class TSlotWidget(BaseTabWidget):
                                             widget=None, interval_value=[1., 30.], step=1., decimals=2.),
                                 WidgetValue(type=float, name="screw_length", show_name="Screw length",
                                             widget=None, interval_value=[5., 300.], step=1., decimals=2.),
-                                WidgetValue(type=float, name="screw_length_tol", show_name="Screw length tol.",
-                                            widget=None, interval_value=[0, 300.], step=1., decimals=2.)])
+                                WidgetValue(type=float, name="nut_slot_overhang", show_name="Nut slot overhang",
+                                            widget=None, interval_value=[0., 300.], step=0.1, decimals=2.),
+                                WidgetValue(type=float, name="thread_clearance", show_name="Thread clearance",
+                                            widget=None, interval_value=[0., 300.], step=0.1, decimals=2.),
+                                WidgetValue(type=float, name="nut_flat_flat", show_name="Nut flat to flat",
+                                            widget=None, interval_value=[1., 100.], step=0.5, decimals=2.),
+                                WidgetValue(type=float, name="nut_height", show_name="Nut height",
+                                            widget=None, interval_value=[1., 100.], step=0.5, decimals=2.),
+                                WidgetValue(type=bool, name="use_washer", show_name="Use washer", widget=None),
+                                WidgetValue(type=float, name="washer_diameter", show_name="Washer diameter",
+                                            widget=None, interval_value=[1., 100.], step=0.5, decimals=2.,
+                                            parent_name="use_washer", parent_value=[True]),
+                                WidgetValue(type=float, name="washer_thickness", show_name="Washer thickness",
+                                            widget=None, interval_value=[0.1, 20.], step=0.1, decimals=2.,
+                                            parent_name="use_washer", parent_value=[True])])
 
 
 class TabContinuousWidget(BaseTabWidget):
@@ -84,6 +155,11 @@ class TabContinuousWidget(BaseTabWidget):
 
         self.widget_list = [WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
                             WidgetValue(type=float, name="thickness", show_name="Thickness", widget=None),
+                    WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
+                    WidgetValue(type=float, name="tab_length", show_name="Tab length", widget=None,
+                                        interval_value=[0.01, 3000.], step=0.5, decimals=2),
+                            WidgetValue(type=float, name="tab_length_tolerance", show_name="Tab length tolerance",
+                                        widget=None, interval_value=[0., 100.], step=0.1, decimals=2),
                             WidgetValue(type=float, name="tabs_number", show_name="Number of elements",
                                             widget=None, interval_value=[2., 300.], step=1., decimals=0),
                             WidgetValue(type=bool, name="y_invert", show_name="Invert Y", widget=None),
@@ -96,7 +172,12 @@ class TabFlexWidget(BaseTabWidget):
     def __init__(self, tab_properties):
         BaseTabWidget.__init__(self, tab_properties)
 
-        self.widget_list = [WidgetValue(type=float, name="tabs_width", show_name="Width of tabs", widget=None,
+        self.widget_list = [WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
+                    WidgetValue(type=float, name="tab_length", show_name="Tab length", widget=None,
+                                        interval_value=[0.01, 3000.], step=0.5, decimals=2),
+                            WidgetValue(type=float, name="tab_length_tolerance", show_name="Tab length tolerance",
+                                        widget=None, interval_value=[0., 100.], step=0.1, decimals=2),
+                    WidgetValue(type=float, name="tabs_width", show_name="Width of tabs", widget=None,
                                             interval_value=[1., 300.], step=1., decimals=2),
                             WidgetValue(type=bool, name="y_invert", show_name="Invert Y", widget=None),
                             WidgetValue(type=bool, name="dog_bone", show_name="Dog bone hole", widget=None)]
@@ -152,6 +233,10 @@ class TabsList(object):
             widget = TSlotWidget(tab_properties)
         elif tab_type == TabProperties.TYPE_CONTINUOUS:
             widget = TabContinuousWidget(tab_properties)
+        elif tab_type == TabProperties.TYPE_WOOD_SCREW:
+            widget = WoodScrewWidget(tab_properties)
+        elif tab_type == TabProperties.TYPE_SCREW_IN_NUT:
+            widget = ScrewInNutWidget(tab_properties)
         #elif tab_type == TabProperties.TYPE_FLEX:
         #    widget = TabFlexWidget(tab_properties)
         else:

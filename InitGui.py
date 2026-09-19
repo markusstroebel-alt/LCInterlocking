@@ -57,10 +57,12 @@ static char * laser_xpm[] = {
         import MakeBoxPanel
         import MakeRoundedBoxPanel
         from panel import multiplejoins, crosspiece, livinghinge
+        from panel.preferencespage import LCInterlockingPreferencesPage
         all_command = ["make_box_command", "multiple_tabs_command", "crosspiece"]
         self.appendToolbar("Tab", all_command)
         self.appendToolbar("Hinge", ["make_rounded_box_command", "livinghinge"])
         self.appendToolbar("Export", ["export_command"])
+        Gui.addPreferencePage(LCInterlockingPreferencesPage, "LCInterlocking")
 
  
     def Activated(self):
