@@ -88,6 +88,17 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
+    head_clearance_length = getattr(tab, 'head_clearance', 0.0) \
+                            - material_face.laser_beam_diameter
+    if head_clearance_length > 0.0:
+        head_clearance_hole = Part.makeBox(
+            head_clearance_length, screw_corrected_width, corrected_height,
+            FreeCAD.Vector(-vert_corrected_length - head_clearance_length,
+                           -screw_corrected_width / 2.0,
+                           -corrected_height / 2.0))
+        head_clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(head_clearance_hole)
+
     # The screw head is at the bottom; place the pocket stack after the nut depth
     # and axial tolerances so the screw channel reaches the nut.
     nut_depth_offset = tab.nut_height + tab.nut_slot_overhang \
@@ -377,8 +388,7 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
         # The head side uses the same pocket geometry as a normal Screw connection.
         head_tab = helper.ObjectProperties(**tab.__dict__)
         head_tab.thread_clearance = 0.0
-        head_tab.nut_height = tab.nut_height + tab.head_clearance
-        head_tab.nut_slot_overhang = 0.0
+        head_tab.head_clearance = 0.0
         head_tab.screw_length_tol = 0.0
         head_pocket = screw_way_on_face(tab_part.properties, part_interactor.properties,
                                         screw_spec, head_tab, y, tab.dog_bone)
