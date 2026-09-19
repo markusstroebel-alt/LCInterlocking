@@ -11,35 +11,34 @@ Die Einstellung soll generell fuer die Verbindungsarten gelten, die Zapfen erzeu
 statt eines Durchgangslochs erhalten.
 
 ## Technische Leitidee
-- Neue optionale Property `tab_length` (mm) pro Tab/Face.
-- Rueckwaertskompatibler Default: volle Materialdicke (`0`/leer als "durchgehend" oder ein
-  automatisch gesetzter Wert, noch zu entscheiden).
-- `tab_join_create_tab_on_face` verwendet die gewaehlte Laenge entlang der lokalen X-Achse,
-  begrenzt auf die Gegenmaterialdicke.
-- `helper.tab_join_create_hole_on_plane` erzeugt passend dazu eine Tasche mit derselben Tiefe,
-  statt immer die komplette Materialdicke zu schneiden.
-- Bei voller Laenge bleibt das bisherige Durchgangsverhalten unveraendert.
+- Neue Property `tab_length` (mm) pro Tab/Face, in allen Tab-Widgets.
+- `tab_length = 0` bedeutet explizit "Durchgang" und bleibt der Default fuer bestehende und neue
+   Verbindungen. Intern wird in diesem Fall die jeweilige Gegenmaterialdicke verwendet.
+- Ein positiver Wert ist eine absolute Zapfenlaenge entlang der lokalen X-Achse. Die Geometrie wird
+   nicht auf die Gegenmaterialdicke begrenzt: Werte groesser als die Materialdicke werden akzeptiert.
+- `tab_join_create_tab_on_face` verwendet die gewaehlte Laenge fuer den Zapfen.
+- `helper.tab_join_create_hole_on_plane` erzeugt automatisch eine Tasche mit derselben Tiefe; bei
+   `tab_length = 0` bleibt es ein Durchgangsloch.
+- Bei voller Laenge bzw. `0` bleibt das bisherige Durchgangsverhalten unveraendert.
 
 ## Betroffene Dateien/Module (vorlaeufig)
 - `lasercut/tabproperties.py` — Property/Default fuer `tab_length`.
 - `lasercut/join.py` — Tab-Geometrie verwendet `tab_length`.
 - `lasercut/helper.py` — Gegen-Tasche verwendet `tab_length` und passende Positionierung.
-- `panel/tab.py` — Eingabefeld fuer Zapfenlaenge in `BaseTabWidget` oder den relevanten Widgets.
+- `panel/tab.py` — Eingabefeld fuer Zapfenlaenge in `BaseTabWidget`, damit es bei allen
+   Tab-Typen verfuegbar ist.
 - `docs/interlocking.md` — Beschreibung von Durchgangszapfen vs. verdeckten Taschen.
 
-## Offene Fragen (bitte beantworten)
-1. **Bedeutung der Laenge**: Soll `tab_length` eine absolute Laenge in mm sein, oder ein relativer
-   Anteil der Gegenmaterialdicke (z.B. 50%)?
-2. **Standardwert/Durchgang**: Soll der Default die volle Materialdicke sein, oder soll `0`/leer
-   explizit "Durchgang" bedeuten und ein positiver Wert eine Tasche aktivieren?
-3. **Einseitig oder beidseitig**: Soll die Einstellung nur fuer die Zapfen gelten (Zapfen ragen
-   kuerzer in das Gegenmaterial), waehrend die bestehende Gegen-Tasche automatisch passend tief
-   wird? Oder sollen auch andere bestehende Durchgangsloecher/-geometrien begrenzt werden?
-4. **Laenge bei Materialdicke**: Wenn `tab_length` groesser als die Gegenmaterialdicke ist, soll
-   auf die Materialdicke begrenzt werden oder ein Fehler angezeigt werden?
-5. **Geltungsbereich**: Soll `tab_length` in allen Tab-Widgets (`Tab`, `Screw`, `WoodScrew`, ggf.
-   `Continuous`) erscheinen, oder nur bei `Tab`/`Screw`/`WoodScrew`?
+## Entschiedene Punkte (vom Nutzer beantwortet)
+1. **Bedeutung der Laenge**: `tab_length` ist eine absolute Laenge in Millimetern.
+2. **Standardwert/Durchgang**: `0` bedeutet Durchgang und ist der Default.
+3. **Einseitig oder beidseitig**: Die Zapfenlaenge und die automatisch erzeugte Gegen-Tasche
+   werden gemeinsam angepasst; andere Durchgangsloecher bleiben unveraendert.
+4. **Laenge bei Materialdicke**: Werte groesser als die Gegenmaterialdicke werden akzeptiert und
+   nicht auf die Dicke begrenzt.
+5. **Geltungsbereich**: Das Feld erscheint in allen Tab-Widgets, einschliesslich `Tab`, `Screw`,
+   `WoodScrew` und `Continuous`.
 
 ## Naechster Schritt
-Nach Beantwortung wird der Plan konkretisiert und zur Freigabe vorgelegt. Erst danach wird ein
-Feature-Branch angelegt und implementiert.
+Der konkretisierte Plan muss vor der Umsetzung noch explizit freigegeben werden. Danach wird ein
+Feature-Branch angelegt und feingranular implementiert.
