@@ -11,9 +11,9 @@
 - Verbindungstyp, Name und Property-Werte sind editierbar.
 
 ## Todo
-- [ ] Preset-Lade-/Speicherhelfer
-- [ ] Tabelle in native Preferences-Seite integrieren
-- [ ] Add/Delete/Save-Aktionen
-- [ ] Doku und README aktualisieren
-- [ ] Syntax-/Diff-Checks
+- [x] Preset-Lade-/Speicherhelfer
+- [x] Tabelle in native Preferences-Seite integrieren
+- [x] Add/Delete/Save-Aktionen
+- [x] Doku und README aktualisieren
+- [x] Syntax-/Diff-Checks
 - [ ] FreeCAD-Manuelltest

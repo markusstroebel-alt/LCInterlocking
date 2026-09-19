@@ -27,6 +27,12 @@ import os
 import FreeCAD
 
 PRESETS_FILE_NAME = "LCInterlocking_presets.json"
+KNOWN_PRESET_PROPERTIES = (
+    "y_length", "thickness", "through_tabs", "tab_length", "tab_length_tolerance",
+    "tabs_number", "tabs_width", "tabs_shift", "interval_ratio", "dog_bone",
+    "tab_dog_bone", "y_invert", "half_tab_ratio", "screw_diameter", "screw_length",
+    "screw_length_tol", "nut_flat_flat", "nut_height", "nut_slot_overhang",
+    "thread_clearance", "use_washer", "washer_diameter", "washer_thickness")
 
 
 def get_presets_file_path():
@@ -83,6 +89,14 @@ def get_preset_rows():
                          "name": preset.get("name", ""),
                          "values": dict(preset.get("values", {}))})
     return rows
+
+
+def get_preset_property_names(rows=None):
+    if rows is None:
+        rows = get_preset_rows()
+    names = set(KNOWN_PRESET_PROPERTIES)
+    names.update(name for row in rows for name in row["values"])
+    return sorted(names)
 
 
 def save_preset_rows(rows):

@@ -71,6 +71,9 @@ Additional Information
     and "Thread clearance". The last value adds free space behind the nut for the protruding thread.
     Defaults for these and the other Screw dimensions can be configured in Edit -> Preferences ->
     LCInterlocking; existing connections keep their own values.
+  * Global connection presets can be reviewed and edited in the "Global connection presets" table
+    in the same preferences page. Use "Add preset", "Delete selected" and "Save presets" to
+    manage the shared preset file.
   * All tab connections have a "Through tabs" option. When disabled, "Tab length" defines the
     absolute length of the tab in millimetres and the matching geometry is generated as a blind
     pocket instead of a through cut. "Tab length" and "Tab length tolerance" remain visible in
