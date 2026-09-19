@@ -113,12 +113,10 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
             washer_hole = helper.make_dog_bone_on_limits_on_xy(washer_hole, corrected_height)
         hole = hole.fuse(washer_hole)
 
-    # Thread clearance extends the free space behind the nut (or washer) pocket.
-    clearance_x_pos = nut_x_pos + corrected_length
-    if tab.use_washer:
-        clearance_x_pos += washer_length
+    # Thread clearance extends behind the nut pocket, away from the screw channel.
     clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
     if clearance_length > 0.0:
+        clearance_x_pos = nut_x_pos - clearance_length
         thread_clearance_hole = Part.makeBox(
             clearance_length, screw_corrected_width, corrected_height,
             FreeCAD.Vector(clearance_x_pos, -screw_corrected_width / 2.0, -corrected_height / 2.0))
