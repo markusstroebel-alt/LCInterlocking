@@ -67,4 +67,7 @@ Additional Information
   * "WoodScrew" is a lighter alternative to "Screw": it only creates the tabs and a round hole for
     the screw shaft in the other part, without the pocket for a nut/washer — useful when the screw
     threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
+  * All tab connections have a "Through tabs" option. When disabled, "Tab length" defines the
+    absolute length of the tab in millimetres and the matching geometry is generated as a blind
+    pocket instead of a through cut. The default keeps the existing through-tab behavior.
 

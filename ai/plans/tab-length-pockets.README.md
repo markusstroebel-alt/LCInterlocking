@@ -7,7 +7,8 @@ werden. Im zweiten Fall wird im Gegenmaterial automatisch eine passende Tasche g
 ## Nutzung
 In den Eigenschaften aller Tab-Verbindungen stehen:
 - **Through tabs**: aktiv erzeugt Zapfen durch die gesamte Gegenplatte (Default).
-- **Tab length**: absolute Zapfenlaenge in Millimetern, wenn "Through tabs" deaktiviert ist.
+- **Tab length**: absolute Zapfenlaenge in Millimetern, wenn "Through tabs" deaktiviert ist;
+	dann wird im Gegenmaterial automatisch eine Tasche mit derselben Tiefe erzeugt.
 
 Die Option gilt fuer Tab, Screw, WoodScrew und Continuous.
 

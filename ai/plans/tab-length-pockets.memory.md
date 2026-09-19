@@ -12,10 +12,10 @@
 - Gilt fuer alle Tab-Widgets, einschliesslich Tab, Screw, WoodScrew und Continuous.
 
 ## Todo
-- [ ] Properties in `TabProperties`
-- [ ] Zapfen-/Taschengeometrie anpassen
-- [ ] UI fuer alle Tab-Widgets
-- [ ] Dokumentation aktualisieren
-- [ ] Syntax-Checks ausfuehren
+- [x] Properties in `TabProperties`
+- [x] Zapfen-/Taschengeometrie anpassen
+- [x] UI fuer alle Tab-Widgets
+- [x] Dokumentation aktualisieren
+- [x] Syntax-Checks ausfuehren
 - [ ] FreeCAD-Manuelltest (hier nicht verfuegbar)
-- [ ] README finalisieren
+- [x] README finalisieren
