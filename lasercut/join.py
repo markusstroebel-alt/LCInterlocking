@@ -92,6 +92,8 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     # and axial tolerances so the screw channel reaches the nut.
     nut_depth_offset = tab.nut_height + tab.nut_slot_overhang \
                        + getattr(tab, 'screw_length_tol', 0.5)
+    if tab.use_washer:
+        nut_depth_offset += tab.washer_thickness
     pocket_x_pos = -vert_corrected_length + nut_depth_offset
 
     # Washer hole comes directly after the screw channel.
