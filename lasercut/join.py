@@ -165,24 +165,25 @@ def screw_in_nut_way_on_face(material_face, material_plane, tab, pos_y, dog_bone
         washer_length = tab.washer_thickness - material_face.laser_beam_diameter
         washer_width = tab.washer_diameter - material_face.laser_beam_diameter
         washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
-                                   FreeCAD.Vector(pocket_x_pos + channel_length,
+                       FreeCAD.Vector(-washer_length,
                                                   -washer_width / 2.0,
                                                   -corrected_height / 2.0))
         washer_hole.translate(FreeCAD.Vector(0, pos_y, 0))
         hole = hole.fuse(washer_hole)
-        pocket_x_pos += channel_length + washer_length
+        pocket_x_pos = -washer_length
 
     nut_depth = tab.nut_depth - material_face.laser_beam_diameter
     nut_radius = (tab.nut_outer_diameter - material_face.laser_beam_diameter) / 2.0
+    nut_x_pos = pocket_x_pos - nut_depth
     nut_hole = Part.makeCylinder(nut_radius, nut_depth,
-                                 FreeCAD.Vector(pocket_x_pos, pos_y, 0),
+                                 FreeCAD.Vector(nut_x_pos, pos_y, 0),
                                  FreeCAD.Vector(1, 0, 0))
     hole = hole.fuse(nut_hole)
 
     clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
     if clearance_length > 0.0:
         clearance_hole = Part.makeBox(clearance_length, screw_width, corrected_height,
-                                      FreeCAD.Vector(pocket_x_pos + nut_depth,
+                          FreeCAD.Vector(nut_x_pos - clearance_length,
                                                      -screw_width / 2.0,
                                                      -corrected_height / 2.0))
         clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
