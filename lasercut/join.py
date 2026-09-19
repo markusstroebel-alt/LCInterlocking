@@ -87,9 +87,10 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
-    # Nut hole
-    nut_x_pos = -vert_corrected_length + tab.nut_height + tab.nut_slot_overhang
-    corrected_length = tab.nut_height - material_face.laser_beam_diameter
+    # Nut hole starts where the screw channel ends; overhang extends its far side.
+    nut_x_pos = 0.0
+    corrected_length = (tab.nut_height + tab.nut_slot_overhang) \
+                       - material_face.laser_beam_diameter
     corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter
     nut_hole = Part.makeBox(corrected_length, corrected_width, corrected_height,
                             FreeCAD.Vector(0,
@@ -99,8 +100,7 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
         nut_hole = helper.make_dog_bone_on_limits_on_xy(nut_hole, corrected_height)
     hole = hole.fuse(nut_hole)
 
-    # Washer hole: handled just like the nut hole (own box, flat_flat/height equivalents),
-    # positioned right after (below) the nut hole
+    # Washer hole: handled like the nut hole and positioned directly after it.
     if tab.use_washer:
         washer_x_pos = nut_x_pos + corrected_length
         washer_length = tab.washer_thickness - material_face.laser_beam_diameter
@@ -113,13 +113,15 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
             washer_hole = helper.make_dog_bone_on_limits_on_xy(washer_hole, corrected_height)
         hole = hole.fuse(washer_hole)
 
-    # Thread clearance extends behind the nut pocket, away from the screw channel.
+    # Thread clearance continues directly behind the nut/washer pockets.
     clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
     if clearance_length > 0.0:
-        clearance_x_pos = nut_x_pos - clearance_length
+        clearance_x_pos = nut_x_pos + corrected_length
+        if tab.use_washer:
+            clearance_x_pos += washer_length
         thread_clearance_hole = Part.makeBox(
-            clearance_length, screw_corrected_width, corrected_height,
-            FreeCAD.Vector(clearance_x_pos, -screw_corrected_width / 2.0, -corrected_height / 2.0))
+            clearance_length, corrected_width, corrected_height,
+            FreeCAD.Vector(clearance_x_pos, -corrected_width / 2.0, -corrected_height / 2.0))
         thread_clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
         hole = hole.fuse(thread_clearance_hole)
     return hole
