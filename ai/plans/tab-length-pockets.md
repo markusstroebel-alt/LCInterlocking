@@ -25,6 +25,7 @@ statt eines Durchgangslochs erhalten.
    `tab_length + tab_length_tolerance`; dadurch ist die Tasche um die definierte Toleranz tiefer
    als der Zapfen. Bei `through_tabs = True` bleibt es ein Durchgangsloch und die Toleranz wird
    ignoriert.
+- Default fuer `tab_length_tolerance` ist `0.5 mm`.
 - Bei `through_tabs = True` bleibt das bisherige Durchgangsverhalten unveraendert.
 
 ## Betroffene Dateien/Module (vorlaeufig)
@@ -50,7 +51,8 @@ statt eines Durchgangslochs erhalten.
    `WoodScrew` und `Continuous`.
 6. **Taschentiefe**: Im Taschenmodus wird die Tasche um `tab_length_tolerance` tiefer als der
    Zapfen erzeugt. Im Durchgangsmodus hat die Toleranz keine Wirkung.
+7. **Defaultwert**: `tab_length_tolerance` wird mit `0.5 mm` vorbelegt.
 
 ## Naechster Schritt
-Vor der Umsetzung ist noch der Defaultwert fuer `tab_length_tolerance` zu bestaetigen. Danach
-wird der bestehende Feature-Branch verwendet und die Erweiterung feingranular implementiert.
+Der Defaultwert ist festgelegt. Nach expliziter Umsetzungsfreigabe wird der bestehende
+Feature-Branch verwendet und die Erweiterung feingranular implementiert.
