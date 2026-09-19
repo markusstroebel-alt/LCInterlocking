@@ -13,10 +13,10 @@
 - Inner screw passage is derived from screw diameter; no separate nut hole diameter.
 
 ## Todo
-- [ ] TabProperties type and defaults
-- [ ] ScrewInNut geometry and dispatch
-- [ ] ScrewInNut UI and dropdown
-- [ ] FreeCAD preference defaults
-- [ ] Preset known properties/documentation
-- [ ] Syntax checks
+- [x] TabProperties type and defaults
+- [x] ScrewInNut geometry and dispatch
+- [x] ScrewInNut UI and dropdown
+- [x] FreeCAD preference defaults
+- [x] Preset known properties/documentation
+- [x] Syntax checks
 - [ ] Manual FreeCAD test

@@ -38,6 +38,8 @@ DEFAULT_THREAD_CLEARANCE = 3.0
 DEFAULT_USE_WASHER = False
 DEFAULT_WASHER_DIAMETER = 7.0
 DEFAULT_WASHER_THICKNESS = 0.5
+DEFAULT_NUT_OUTER_DIAMETER = 10.0
+DEFAULT_NUT_DEPTH = 8.0
 
 
 def get_param_group():
@@ -112,3 +114,17 @@ def set_screw_defaults(screw_diameter, screw_length, nut_flat_flat, nut_height,
     param.SetBool("UseWasher", use_washer)
     param.SetFloat("WasherDiameter", washer_diameter)
     param.SetFloat("WasherThickness", washer_thickness)
+
+
+def get_default_nut_outer_diameter():
+    return get_param_group().GetFloat("NutOuterDiameter", DEFAULT_NUT_OUTER_DIAMETER)
+
+
+def get_default_nut_depth():
+    return get_param_group().GetFloat("NutDepth", DEFAULT_NUT_DEPTH)
+
+
+def set_screw_in_nut_defaults(nut_outer_diameter, nut_depth):
+    param = get_param_group()
+    param.SetFloat("NutOuterDiameter", nut_outer_diameter)
+    param.SetFloat("NutDepth", nut_depth)

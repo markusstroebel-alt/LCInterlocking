@@ -137,7 +137,8 @@ class TreePanel(object):
         self.tab_type_box = QtGui.QComboBox(self.tree_widget)
         self.tab_type_box.addItems([TabProperties.TYPE_TAB, TabProperties.TYPE_T_SLOT,
                                     TabProperties.TYPE_CONTINUOUS,
-                                    TabProperties.TYPE_WOOD_SCREW])#, TabProperties.TYPE_FLEX])
+                                    TabProperties.TYPE_WOOD_SCREW,
+                                    TabProperties.TYPE_SCREW_IN_NUT])#, TabProperties.TYPE_FLEX])
         h_box.addWidget(self.tab_type_box)
         add_faces_button = QtGui.QPushButton('Add faces', self.tree_widget)
         add_faces_button.clicked.connect(self.add_tabs)

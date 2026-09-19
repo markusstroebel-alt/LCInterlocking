@@ -146,6 +146,50 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     return hole
 
 
+def screw_in_nut_way_on_face(material_face, material_plane, tab, pos_y, dog_bone=False):
+    washer_thickness = tab.washer_thickness if tab.use_washer else 0.0
+    channel_length = tab.screw_length - washer_thickness - tab.nut_depth - tab.thread_clearance
+    channel_length -= material_face.laser_beam_diameter
+    corrected_height = material_face.thickness
+    screw_width = tab.screw_diameter - material_face.laser_beam_diameter
+    if channel_length <= 0.0 or screw_width <= 0.0:
+        raise ValueError("ScrewInNut dimensions leave no positive screw channel")
+
+    pocket_x_pos = -channel_length
+    hole = Part.makeBox(channel_length, screw_width, corrected_height,
+                        FreeCAD.Vector(pocket_x_pos, -screw_width / 2.0,
+                                       -corrected_height / 2.0))
+    hole.translate(FreeCAD.Vector(0, pos_y, 0))
+
+    if tab.use_washer:
+        washer_length = tab.washer_thickness - material_face.laser_beam_diameter
+        washer_width = tab.washer_diameter - material_face.laser_beam_diameter
+        washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
+                                   FreeCAD.Vector(pocket_x_pos + channel_length,
+                                                  -washer_width / 2.0,
+                                                  -corrected_height / 2.0))
+        washer_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(washer_hole)
+        pocket_x_pos += channel_length + washer_length
+
+    nut_depth = tab.nut_depth - material_face.laser_beam_diameter
+    nut_radius = (tab.nut_outer_diameter - material_face.laser_beam_diameter) / 2.0
+    nut_hole = Part.makeCylinder(nut_radius, nut_depth,
+                                 FreeCAD.Vector(pocket_x_pos, pos_y, 0),
+                                 FreeCAD.Vector(1, 0, 0))
+    hole = hole.fuse(nut_hole)
+
+    clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
+    if clearance_length > 0.0:
+        clearance_hole = Part.makeBox(clearance_length, screw_width, corrected_height,
+                                      FreeCAD.Vector(pocket_x_pos + nut_depth,
+                                                     -screw_width / 2.0,
+                                                     -corrected_height / 2.0))
+        clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(clearance_hole)
+    return hole
+
+
 #            X (Length)
 #            |
 #            |
@@ -324,6 +368,20 @@ def make_wood_screw_tab_join(tab, tab_part, other_parts):
     return
 
 
+def make_screw_in_nut_join(tab, tab_part, other_parts):
+    half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
+    screw_spec = helper.ObjectProperties(screw_diameter=tab.screw_diameter,
+                                         screw_length=tab.screw_length)
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+        screw_way_hole_face = screw_in_nut_way_on_face(tab_part.properties,
+                                                        part_interactor.properties,
+                                                        tab, y, tab.dog_bone)
+        screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_spec, y)
+        tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
+        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
+    return
+
+
 def make_tabs_joins(parts, tabs):
     parts_element = []
     for part in parts:
@@ -358,6 +416,8 @@ def make_tabs_joins(parts, tabs):
             flextab.make_flex_tab_join(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_WOOD_SCREW:
             make_wood_screw_tab_join(tab, tab_part, other_parts)
+        elif tab.tab_type == TabProperties.TYPE_SCREW_IN_NUT:
+            make_screw_in_nut_join(tab, tab_part, other_parts)
         else:
             raise ValueError("Unknown tab type")
     return parts_element

@@ -34,6 +34,7 @@ class TabProperties(helper.ObjectProperties):
     TYPE_CONTINUOUS = 'Continuous'
     TYPE_FLEX = 'Flexible'
     TYPE_WOOD_SCREW = 'WoodScrew'
+    TYPE_SCREW_IN_NUT = 'ScrewInNut'
     TYPE_NOT_DEFINED = 'Not Defined'
 
     _allowed = ('face_name', 'y_length', 'thickness', 'tabs_width', 'tabs_number', 'tabs_shift',
@@ -42,7 +43,8 @@ class TabProperties(helper.ObjectProperties):
                 'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'transform_matrix',
                 'through_tabs', 'tab_length', 'tab_length_tolerance',
                 'nut_flat_flat', 'nut_height', 'nut_slot_overhang', 'thread_clearance',
-                'use_washer', 'washer_diameter', 'washer_thickness')
+                'use_washer', 'washer_diameter', 'washer_thickness',
+                'nut_outer_diameter', 'nut_depth')
 
     __count = 0
 
@@ -102,6 +104,10 @@ class TabProperties(helper.ObjectProperties):
                                       else preferences.get_default_nut_slot_overhang())
         if not hasattr(self, 'thread_clearance'):
             self.thread_clearance = preferences.get_default_thread_clearance()
+        if not hasattr(self, 'nut_outer_diameter'):
+            self.nut_outer_diameter = preferences.get_default_nut_outer_diameter()
+        if not hasattr(self, 'nut_depth'):
+            self.nut_depth = preferences.get_default_nut_depth()
         if not hasattr(self, 'through_tabs'):
             self.through_tabs = True
         if not hasattr(self, 'tab_length'):
