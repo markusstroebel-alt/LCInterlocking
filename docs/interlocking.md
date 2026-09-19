@@ -67,6 +67,10 @@ Additional Information
   * "WoodScrew" is a lighter alternative to "Screw": it only creates the tabs and a round hole for
     the screw shaft in the other part, without the pocket for a nut/washer — useful when the screw
     threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
+  * Screw connections expose separate values for "Screw length", "Nut height", "Nut slot overhang"
+    and "Thread clearance". The last value adds free space behind the nut for the protruding thread.
+    Defaults for these and the other Screw dimensions can be configured in Edit -> Preferences ->
+    LCInterlocking; existing connections keep their own values.
   * All tab connections have a "Through tabs" option. When disabled, "Tab length" defines the
     absolute length of the tab in millimetres and the matching geometry is generated as a blind
     pocket instead of a through cut. "Tab length" and "Tab length tolerance" remain visible in

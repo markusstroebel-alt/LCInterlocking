@@ -13,3 +13,6 @@ die Mutter reicht und wie viel Platz das ueberstehende Gewinde bekommt.
 
 Die Defaults koennen zentral in den FreeCAD-Einstellungen gesetzt werden; Verbindungen koennen sie
 anschliessend individuell ueberschreiben.
+
+Alte Dokumente mit `screw_length_tol` uebernehmen diesen Wert automatisch als
+`nut_slot_overhang`. Die alte Property bleibt nur fuer die Migration erhalten.

@@ -74,8 +74,9 @@ def screw_way_on_plane(material_plane, screw_nut_spec, pos_y):
 def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y, dog_bone=False):
     # horizontal hole
     vert_corrected_length = screw_nut_spec.screw_length - material_plane.thickness \
-                            + material_plane.thickness_tolerance + screw_nut_spec.screw_length_tol
+                            + material_plane.thickness_tolerance
     corrected_width = screw_nut_spec.screw_diameter - material_face.laser_beam_diameter
+    screw_corrected_width = corrected_width
     corrected_height = material_face.thickness  # + materialFace.tolerance
     screw_hole = Part.makeBox(vert_corrected_length, corrected_width, corrected_height,
                               FreeCAD.Vector(0.,
@@ -87,7 +88,7 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     hole = screw_hole
 
     # Nut hole
-    nut_x_pos = -vert_corrected_length + tab.nut_height + screw_nut_spec.screw_length_tol
+    nut_x_pos = -vert_corrected_length + tab.nut_height + tab.nut_slot_overhang
     corrected_length = tab.nut_height - material_face.laser_beam_diameter
     corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter
     nut_hole = Part.makeBox(corrected_length, corrected_width, corrected_height,
@@ -111,6 +112,18 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
         if dog_bone:
             washer_hole = helper.make_dog_bone_on_limits_on_xy(washer_hole, corrected_height)
         hole = hole.fuse(washer_hole)
+
+    # Thread clearance extends the free space behind the nut (or washer) pocket.
+    clearance_x_pos = nut_x_pos + corrected_length
+    if tab.use_washer:
+        clearance_x_pos += washer_length
+    clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
+    if clearance_length > 0.0:
+        thread_clearance_hole = Part.makeBox(
+            clearance_length, screw_corrected_width, corrected_height,
+            FreeCAD.Vector(clearance_x_pos, -screw_corrected_width / 2.0, -corrected_height / 2.0))
+        thread_clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+        hole = hole.fuse(thread_clearance_hole)
     return hole
 
 
@@ -272,7 +285,6 @@ def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
 def make_tslot_tab_join(tab, tab_part, other_parts):
     half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
     screw_nut_spec = helper.get_screw_nut_spec(tab.screw_diameter, tab.screw_length)
-    screw_nut_spec.screw_length_tol = tab.screw_length_tol
     for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
         screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
                                                 screw_nut_spec, tab, y, tab.dog_bone)

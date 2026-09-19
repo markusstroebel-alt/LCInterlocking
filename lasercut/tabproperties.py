@@ -40,7 +40,8 @@ class TabProperties(helper.ObjectProperties):
                 'y_invert', 'half_tab_ratio', 'interval_ratio', 'freecad_obj_name',
                 'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'transform_matrix',
                 'through_tabs', 'tab_length', 'tab_length_tolerance',
-                'nut_flat_flat', 'nut_height', 'use_washer', 'washer_diameter', 'washer_thickness')
+                'nut_flat_flat', 'nut_height', 'nut_slot_overhang', 'thread_clearance',
+                'use_washer', 'washer_diameter', 'washer_thickness')
 
     __count = 0
 
@@ -88,29 +89,37 @@ class TabProperties(helper.ObjectProperties):
         if not hasattr(self, 'half_tab_ratio'):
             self.half_tab_ratio = 1.
         if not hasattr(self, 'screw_diameter'):
-            self.screw_diameter = 3.
+            self.screw_diameter = preferences.get_default_screw_diameter()
         if not hasattr(self, 'screw_length'):
-            self.screw_length = 15.
+            self.screw_length = preferences.get_default_screw_length()
         if not hasattr(self, 'screw_length_tol'):
             self.screw_length_tol = 0.5
+        if not hasattr(self, 'nut_slot_overhang'):
+            self.nut_slot_overhang = getattr(self, 'screw_length_tol',
+                                             preferences.get_default_nut_slot_overhang())
+        if not hasattr(self, 'thread_clearance'):
+            self.thread_clearance = preferences.get_default_thread_clearance()
         if not hasattr(self, 'through_tabs'):
             self.through_tabs = True
         if not hasattr(self, 'tab_length'):
             self.tab_length = 0.0
         if not hasattr(self, 'tab_length_tolerance'):
             self.tab_length_tolerance = 0.5
-        nut_spec = helper.get_screw_nut_spec(self.screw_diameter, self.screw_length)
-        washer_spec = helper.get_washer_spec(self.screw_diameter)
         if not hasattr(self, 'nut_flat_flat'):
-            self.nut_flat_flat = self._last_nut_washer_values.get('nut_flat_flat', nut_spec.nut_flat_flat)
+            self.nut_flat_flat = self._last_nut_washer_values.get(
+                'nut_flat_flat', preferences.get_default_nut_flat_flat())
         if not hasattr(self, 'nut_height'):
-            self.nut_height = self._last_nut_washer_values.get('nut_height', nut_spec.nut_height)
+            self.nut_height = self._last_nut_washer_values.get(
+                'nut_height', preferences.get_default_nut_height())
         if not hasattr(self, 'use_washer'):
-            self.use_washer = self._last_nut_washer_values.get('use_washer', False)
+            self.use_washer = self._last_nut_washer_values.get(
+                'use_washer', preferences.get_default_use_washer())
         if not hasattr(self, 'washer_diameter'):
-            self.washer_diameter = self._last_nut_washer_values.get('washer_diameter', washer_spec.washer_diameter)
+            self.washer_diameter = self._last_nut_washer_values.get(
+                'washer_diameter', preferences.get_default_washer_diameter())
         if not hasattr(self, 'washer_thickness'):
-            self.washer_thickness = self._last_nut_washer_values.get('washer_thickness', washer_spec.washer_thickness)
+            self.washer_thickness = self._last_nut_washer_values.get(
+                'washer_thickness', preferences.get_default_washer_thickness())
         TabProperties._last_nut_washer_values = {
             'nut_flat_flat': self.nut_flat_flat,
             'nut_height': self.nut_height,

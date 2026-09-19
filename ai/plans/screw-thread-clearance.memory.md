@@ -13,10 +13,10 @@
 - Einzelne Verbindungen bleiben nach der Default-Uebernahme editierbar.
 
 ## Todo
-- [ ] TabProperties und Legacy-Migration
-- [ ] Screw-Geometrie fuer getrennte Werte
-- [ ] Screw-UI-Felder
-- [ ] FreeCAD-Preferences erweitern
-- [ ] Presets/README/Dokumentation aktualisieren
-- [ ] Syntax-Checks
+- [x] TabProperties und Legacy-Migration
+- [x] Screw-Geometrie fuer getrennte Werte
+- [x] Screw-UI-Felder
+- [x] FreeCAD-Preferences erweitern
+- [x] Presets/README/Dokumentation aktualisieren
+- [x] Syntax-Checks
 - [ ] FreeCAD-Manuelltest
