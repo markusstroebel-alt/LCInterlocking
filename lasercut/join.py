@@ -384,15 +384,13 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
                                         screw_spec, head_tab, y, tab.dog_bone)
         tab_part.toRemove.append(helper.transform_part(head_pocket, tab))
 
-        screw_hole = screw_way_on_plane(part_interactor.properties, screw_spec, y)
         insert_radius = (tab.nut_outer_diameter - part_interactor.properties.laser_beam_diameter) / 2.0
         insert_depth = tab.nut_depth + tab.thread_clearance
         insert_hole = Part.makeCylinder(insert_radius, insert_depth,
                                         FreeCAD.Vector(part_interactor.properties.thickness,
                                                        y, 0),
                                         FreeCAD.Vector(-1, 0, 0))
-        screw_hole = screw_hole.fuse(insert_hole)
-        part_interactor.toRemove.append(helper.transform_part(screw_hole, tab))
+        part_interactor.toRemove.append(helper.transform_part(insert_hole, tab))
     return
 
 
