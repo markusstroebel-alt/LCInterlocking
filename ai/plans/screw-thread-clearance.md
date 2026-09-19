@@ -22,7 +22,7 @@ Tasche hinter der Mutterntasche angefuegt.
    - `screw_length_tol` aus der UI entfernen, aber beim Laden alter Dokumente weiterhin akzeptieren.
    - Alte `screw_length_tol`-Werte einmalig als `nut_slot_overhang` uebernehmen, damit bestehende
      Dokumente ihr bisheriges Verhalten behalten.
-   - Neue Defaults: `nut_slot_overhang = 0.5 mm`, `thread_clearance = 0.5 mm`.
+   - Neue Defaults: `nut_slot_overhang = 0.5 mm`, `thread_clearance = 3.0 mm`.
 2. `panel/tab.py` (`TSlotWidget`):
    - `Screw length tol.` durch drei klar beschriftete Felder ersetzen:
      `Screw length`, `Nut height`, `Nut slot overhang`, `Thread clearance`.
@@ -50,7 +50,7 @@ Richtung zeigen. Fuer eine eindeutige Implementierung wird angenommen:
 
 ## Naechster Schritt
 Bestaetigt: `thread_clearance` wird zusaetzlich hinter der Mutterntasche erzeugt. Es veraendert
-weder `screw_length` noch `nut_slot_overhang`. Die vorgeschlagenen Defaults fuer
-`nut_slot_overhang` und `thread_clearance` bleiben jeweils `0.5 mm`.
+weder `screw_length` noch `nut_slot_overhang`. Die vorgeschlagenen Defaults sind
+`nut_slot_overhang = 0.5 mm` und `thread_clearance = 3.0 mm`.
 
 Vor der Umsetzung muss der konkretisierte Plan noch explizit freigegeben werden.
