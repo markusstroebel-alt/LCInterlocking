@@ -88,8 +88,11 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
-    # The screw head is at the bottom; pockets continue away from the screw channel.
-    pocket_x_pos = -vert_corrected_length
+    # The screw head is at the bottom; place the pocket stack after the nut depth
+    # and axial tolerances so the screw channel reaches the nut.
+    nut_depth_offset = tab.nut_height + tab.nut_slot_overhang \
+                       + getattr(tab, 'screw_length_tol', 0.5)
+    pocket_x_pos = -vert_corrected_length + nut_depth_offset
 
     # Washer hole comes directly after the screw channel.
     if tab.use_washer:
