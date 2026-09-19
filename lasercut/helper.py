@@ -421,7 +421,7 @@ def tab_join_create_hole_on_plane(tab_face, width, pos_y, material_face, materia
     #print("z_plus_inside %r, z_minus_inside %r" % (z_plus_inside, z_minus_inside))
     corrected_length = material_plane.thickness  # OK
     if not getattr(tab_face, 'through_tabs', True):
-        corrected_length = tab_face.tab_length
+        corrected_length = tab_face.tab_length + tab_face.tab_length_tolerance
 
     corrected_width = width + material_plane.hole_width_tolerance # - materialPlane.laser_beam_diameter
     corrected_width_center = corrected_width / 2.0

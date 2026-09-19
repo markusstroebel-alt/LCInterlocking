@@ -69,5 +69,6 @@ Additional Information
     threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
   * All tab connections have a "Through tabs" option. When disabled, "Tab length" defines the
     absolute length of the tab in millimetres and the matching geometry is generated as a blind
-    pocket instead of a through cut. The default keeps the existing through-tab behavior.
+    pocket instead of a through cut. "Tab length tolerance" defines the additional pocket depth
+    and defaults to 0.5 mm. The default through-tab mode keeps the existing behavior.
 
