@@ -92,13 +92,18 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
-    # The screw head is at the bottom; place the pocket stack after the nut depth
-    # and axial tolerances so the screw channel reaches the nut.
-    nut_depth_offset = tab.nut_height + tab.nut_slot_overhang \
-                       + getattr(tab, 'screw_length_tol', 0.5)
-    if tab.use_washer:
-        nut_depth_offset += tab.washer_thickness
-    pocket_x_pos = -vert_corrected_length + nut_depth_offset
+    if getattr(tab, 'tab_type', None) == TabProperties.TYPE_SCREW_IN_NUT:
+        # The washer and head pocket follow the channel, away from the plate.
+        # Their position must not change the channel reference or its length.
+        pocket_x_pos = -vert_corrected_length
+    else:
+        # The normal Screw connection positions its nut/washer stack at the
+        # far end of the channel.
+        nut_depth_offset = tab.nut_height + tab.nut_slot_overhang \
+                           + getattr(tab, 'screw_length_tol', 0.5)
+        if tab.use_washer:
+            nut_depth_offset += tab.washer_thickness
+        pocket_x_pos = -vert_corrected_length + nut_depth_offset
 
     # Washer hole comes directly after the screw channel.
     if tab.use_washer:
@@ -124,6 +129,18 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     if dog_bone:
         nut_hole = helper.make_dog_bone_on_limits_on_xy(nut_hole, corrected_height)
     hole = hole.fuse(nut_hole)
+
+    if getattr(tab, 'tab_type', None) == TabProperties.TYPE_SCREW_IN_NUT:
+        head_clearance_length = getattr(tab, 'head_clearance', 0.0)
+        if head_clearance_length > 0.0:
+            # Continue past the head pocket in screw width for Allen-key access.
+            head_clearance_hole = Part.makeBox(
+                head_clearance_length, screw_corrected_width, corrected_height,
+                FreeCAD.Vector(nut_x_pos - head_clearance_length,
+                               -screw_corrected_width / 2.0,
+                               -corrected_height / 2.0))
+            head_clearance_hole.translate(FreeCAD.Vector(0, pos_y, 0))
+            hole = hole.fuse(head_clearance_hole)
 
     # Screw-width channel for the thread passing through and beyond the nut.
     overhang_length = tab.nut_slot_overhang - material_face.laser_beam_diameter
@@ -381,6 +398,7 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
         head_tab = helper.ObjectProperties(**tab.__dict__)
         head_tab.thread_clearance = 0.0
         head_tab.screw_length_tol = 0.0
+        head_tab.nut_slot_overhang = 0.0
         head_pocket = screw_way_on_face(tab_part.properties, part_interactor.properties,
                                         screw_spec, head_tab, y, tab.dog_bone)
         tab_part.toRemove.append(helper.transform_part(head_pocket, tab))
