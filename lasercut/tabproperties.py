@@ -24,6 +24,7 @@
 
 import FreeCAD
 from lasercut import helper
+from lasercut import preferences
 
 
 class TabProperties(helper.ObjectProperties):

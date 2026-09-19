@@ -97,7 +97,8 @@ class TreePanel(object):
             self.model.append_tab(item.freecad_obj_name, item.tab_name, item.face_name, bool(item.link_name))
 
     def getStandardButtons(self):
-        return int(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        buttons = QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel
+        return buttons.value if hasattr(buttons, 'value') else int(buttons)
 
     def accept(self):
         raise ValueError("Must overloaded")
