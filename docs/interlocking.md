@@ -69,7 +69,9 @@ Additional Information
     threads directly into the material. Parameters: "Half tab ratio" and "Screw diameter".
   * "ScrewInNut" is the connection type for a screw-in nut (Eindrehmutter). It uses a separate
     outer diameter and nut depth. Enter the screw length; the screw channel is derived by subtracting
-    washer thickness, nut depth and thread clearance.
+    washer thickness, nut depth and thread clearance. The screw-head side uses the same pocket
+    geometry as "Screw"; the opposite plate receives the through-hole plus the round blind insert
+    hole.
   * Screw connections expose separate values for "Screw length", "Nut height", "Nut slot overhang"
     and "Thread clearance". The last value adds free space behind the nut for the protruding thread.
     Defaults for these and the other Screw dimensions can be configured in Edit -> Preferences ->

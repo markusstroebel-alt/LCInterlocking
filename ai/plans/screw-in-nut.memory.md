@@ -11,6 +11,8 @@
 - Derived channel length:
   `screw_channel_length = screw_length - washer_thickness - nut_depth - thread_clearance`.
 - Inner screw passage is derived from screw diameter; no separate nut hole diameter.
+- Head side reuses `screw_way_on_face` exactly like `Screw` (head pocket/washer parameters).
+- Opposite side gets `screw_way_on_plane` plus the round blind insert hole.
 
 ## Todo
 - [x] TabProperties type and defaults

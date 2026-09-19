@@ -374,12 +374,20 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
     screw_spec = helper.ObjectProperties(screw_diameter=tab.screw_diameter,
                                          screw_length=tab.screw_length)
     for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
-        screw_way_hole_face = screw_in_nut_way_on_face(tab_part.properties,
-                                                        part_interactor.properties,
-                                                        tab, y, tab.dog_bone)
-        screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_spec, y)
-        tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
-        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
+        # The head side uses the same pocket geometry as a normal Screw connection.
+        head_pocket = screw_way_on_face(tab_part.properties, part_interactor.properties,
+                                        screw_spec, tab, y, tab.dog_bone)
+        tab_part.toRemove.append(helper.transform_part(head_pocket, tab))
+
+        screw_hole = screw_way_on_plane(part_interactor.properties, screw_spec, y)
+        insert_radius = (tab.nut_outer_diameter - part_interactor.properties.laser_beam_diameter) / 2.0
+        insert_depth = tab.nut_depth - part_interactor.properties.laser_beam_diameter
+        insert_hole = Part.makeCylinder(insert_radius, insert_depth,
+                                        FreeCAD.Vector(part_interactor.properties.thickness / 2.0,
+                                                       y, 0),
+                                        FreeCAD.Vector(1, 0, 0))
+        screw_hole = screw_hole.fuse(insert_hole)
+        part_interactor.toRemove.append(helper.transform_part(screw_hole, tab))
     return
 
 
