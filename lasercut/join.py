@@ -131,6 +131,8 @@ def tab_join_create_tab_on_face(material_face, material_plane, width, pos_y, tab
     # Y Ajout d'un Kerf => width
     # Z Rien => height
     corrected_length = material_plane.thickness
+    if not getattr(tab_face, 'through_tabs', True):
+        corrected_length = tab_face.tab_length
     # corrected_width = width + materialFace.laser_beam_diameter
     corrected_height = material_face.thickness
 

@@ -39,6 +39,7 @@ class TabProperties(helper.ObjectProperties):
                 'dog_bone', 'tab_dog_bone', 'screw_diameter', 'screw_length', 'screw_length_tol', 'makeScrew',
                 'y_invert', 'half_tab_ratio', 'interval_ratio', 'freecad_obj_name',
                 'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'transform_matrix',
+                'through_tabs', 'tab_length',
                 'nut_flat_flat', 'nut_height', 'use_washer', 'washer_diameter', 'washer_thickness')
 
     __count = 0
@@ -92,6 +93,10 @@ class TabProperties(helper.ObjectProperties):
             self.screw_length = 15.
         if not hasattr(self, 'screw_length_tol'):
             self.screw_length_tol = 0.5
+        if not hasattr(self, 'through_tabs'):
+            self.through_tabs = True
+        if not hasattr(self, 'tab_length'):
+            self.tab_length = 0.0
         nut_spec = helper.get_screw_nut_spec(self.screw_diameter, self.screw_length)
         washer_spec = helper.get_washer_spec(self.screw_diameter)
         if not hasattr(self, 'nut_flat_flat'):
