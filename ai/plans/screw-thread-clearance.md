@@ -49,5 +49,8 @@ Richtung zeigen. Fuer eine eindeutige Implementierung wird angenommen:
 - Die vier Werte gelten pro Screw-Verbindung; `nut_flat_flat` und Washer-Werte bleiben bestehen.
 
 ## Naechster Schritt
-Vor der Umsetzung muss bestaetigt werden, dass `thread_clearance` zusaetzlich hinter der
-Mutterntasche erzeugt werden soll und die vorgeschlagenen Defaults (`0.5 mm` jeweils) passen.
+Bestaetigt: `thread_clearance` wird zusaetzlich hinter der Mutterntasche erzeugt. Es veraendert
+weder `screw_length` noch `nut_slot_overhang`. Die vorgeschlagenen Defaults fuer
+`nut_slot_overhang` und `thread_clearance` bleiben jeweils `0.5 mm`.
+
+Vor der Umsetzung muss der konkretisierte Plan noch explizit freigegeben werden.
