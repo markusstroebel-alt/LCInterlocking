@@ -284,7 +284,8 @@ def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
 
 def make_tslot_tab_join(tab, tab_part, other_parts):
     half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
-    screw_nut_spec = helper.get_screw_nut_spec(tab.screw_diameter, tab.screw_length)
+    screw_nut_spec = helper.ObjectProperties(screw_diameter=tab.screw_diameter,
+                                              screw_length=tab.screw_length)
     for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
         screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
                                                 screw_nut_spec, tab, y, tab.dog_bone)
