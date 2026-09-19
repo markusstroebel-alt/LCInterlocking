@@ -41,6 +41,7 @@ def get_slot_positions(tab_properties):
             if tab_properties.interval_ratio != 1.0:
                 left *= tab_properties.interval_ratio
                 right *= tab_properties.interval_ratio
+                right *= tab_properties.interval_ratio
             slots_list.append(left + tab_properties.tabs_shift)
             slots_list.append(right + tab_properties.tabs_shift)
     else:
@@ -87,9 +88,24 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     screw_hole.translate(FreeCAD.Vector(x_pos, pos_y, 0))
     hole = screw_hole
 
-    # The face coordinate system starts at the back of the screw channel.
-    # Keep the nut/washer pockets anchored there so they remain inside the face.
-    nut_x_pos = -vert_corrected_length
+    # Keep the sequential pockets anchored inside the face coordinate system.
+    pocket_x_pos = -vert_corrected_length
+
+    # Washer hole comes directly after the screw channel.
+    if tab.use_washer:
+        washer_length = tab.washer_thickness - material_face.laser_beam_diameter
+        washer_width = tab.washer_diameter - material_face.laser_beam_diameter
+        washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
+                                   FreeCAD.Vector(0,
+                                                  -washer_width / 2.0, -corrected_height / 2.0))
+        washer_hole.translate(FreeCAD.Vector(pocket_x_pos, pos_y, 0))
+        if dog_bone:
+            washer_hole = helper.make_dog_bone_on_limits_on_xy(washer_hole, corrected_height)
+        hole = hole.fuse(washer_hole)
+        pocket_x_pos += washer_length
+
+    # Nut hole follows the washer; overhang extends its far side.
+    nut_x_pos = pocket_x_pos
     corrected_length = (tab.nut_height + tab.nut_slot_overhang) \
                        - material_face.laser_beam_diameter
     corrected_width = tab.nut_flat_flat - material_face.laser_beam_diameter
@@ -100,19 +116,6 @@ def screw_way_on_face(material_face, material_plane, screw_nut_spec, tab, pos_y,
     if dog_bone:
         nut_hole = helper.make_dog_bone_on_limits_on_xy(nut_hole, corrected_height)
     hole = hole.fuse(nut_hole)
-
-    # Washer hole: handled like the nut hole and positioned directly after it.
-    if tab.use_washer:
-        washer_x_pos = nut_x_pos + corrected_length
-        washer_length = tab.washer_thickness - material_face.laser_beam_diameter
-        washer_width = tab.washer_diameter - material_face.laser_beam_diameter
-        washer_hole = Part.makeBox(washer_length, washer_width, corrected_height,
-                                   FreeCAD.Vector(0,
-                                                  -washer_width / 2.0, -corrected_height / 2.0))
-        washer_hole.translate(FreeCAD.Vector(washer_x_pos, pos_y, 0))
-        if dog_bone:
-            washer_hole = helper.make_dog_bone_on_limits_on_xy(washer_hole, corrected_height)
-        hole = hole.fuse(washer_hole)
 
     # Thread clearance continues directly behind the nut/washer pockets.
     clearance_length = tab.thread_clearance - material_face.laser_beam_diameter
