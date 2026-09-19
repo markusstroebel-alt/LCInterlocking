@@ -375,8 +375,10 @@ def make_screw_in_nut_join(tab, tab_part, other_parts):
                                          screw_length=tab.screw_length)
     for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
         # The head side uses the same pocket geometry as a normal Screw connection.
+        head_tab = helper.ObjectProperties(**tab.__dict__)
+        head_tab.thread_clearance = 0.0
         head_pocket = screw_way_on_face(tab_part.properties, part_interactor.properties,
-                                        screw_spec, tab, y, tab.dog_bone)
+                                        screw_spec, head_tab, y, tab.dog_bone)
         tab_part.toRemove.append(helper.transform_part(head_pocket, tab))
 
         screw_hole = screw_way_on_plane(part_interactor.properties, screw_spec, y)
