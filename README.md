@@ -24,6 +24,58 @@ This panel appears when "Laser cut Interlocking" workbench is selected:
  * ![Illustration](docs/imgs/living_hinges.png) [Create bend surface with living hinges.](docs/living_hinges.md)
  * ![Illustration](docs/imgs/export.png) [Project parts to 2D plan in order to export in SVG format.](docs/export.md) (Export tool)
 
+## Connection Guide
+
+Use the **Interlocking** tool to create a `MultiJoin` object and define the parts and faces that
+must connect. Select a connection type in the task panel, add the faces, adjust the properties,
+then use **Preview** to inspect the generated parts before confirming the dialog. The generated
+parts should always be checked before cutting.
+
+### Tab and Pocket Connections
+
+Standard **Tab** connections create matching tabs and slots. Disable **Through tabs** to make a
+blind pocket instead of a through-slot. In this mode, set **Tab length** to the tab depth and
+**Tab length tolerance** to the additional clearance at the pocket bottom.
+
+### Screw Connections
+
+Choose **Screw** for a conventional screw, washer, and nut pocket. The nut shape is controlled by
+**Nut flat to flat** and **Nut height**. Enable **Use washer** to add the matching washer pocket.
+Use **Nut slot overhang** for extra space behind the nut and **Thread clearance** for the
+protruding screw thread.
+
+Choose **WoodScrew** when the screw threads directly into the second part. It only creates the
+tabs and the screw-shaft hole; it does not create a nut or washer pocket.
+
+### Screw-In Nuts
+
+Choose **ScrewInNut** for an insert or screw-in nut. Set the screw diameter and length, the nut
+outer diameter and nut depth, and optionally the washer dimensions. The screw channel length is:
+
+```text
+screw channel = screw length - washer thickness - nut depth
+```
+
+The screw head is not part of the entered screw length. **Thread clearance** adds reserve behind
+the insert nut but does not change the screw channel length. **Head clearance** creates a
+screw-width access channel for an Allen key without moving the screw channel.
+
+Enable **Use nut flange pocket** for insert nuts with a collar or flange. Enter a larger
+**Flange pocket diameter** and its **Flange pocket depth**. This concentric step pocket is made on
+the same face as the insert-nut pocket and does not change the screw length, screw channel,
+washer pocket, nut depth, thread clearance, or head clearance.
+
+### Defaults and Presets
+
+Open **Edit -> Preferences -> LCInterlocking** to set default material tolerances, screw values,
+ScrewInNut values, and optional flange-pocket values for new connections. Existing connections
+keep their own dimensions.
+
+Use the **Preset** selector in a connection panel to apply saved values. **Save as...** stores the
+current connection settings for its connection type, and **Delete** removes the selected preset.
+Global presets can also be reviewed and edited in the **Global connection presets** table in the
+same preferences page.
+
 ## Installation
 
 ### Recommended Install
