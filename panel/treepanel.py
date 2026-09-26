@@ -286,6 +286,8 @@ class TreePanel(object):
 
     def force_selection(self, index):
         self.selection_model.clearSelection()
+        if index is None or not index.isValid():
+            return
         self.selection_model.select(index, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)
 
     def selection_changed(self, selected, deselected):
