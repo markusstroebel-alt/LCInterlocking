@@ -57,7 +57,7 @@ def get_freecad_faces_objects_list():
         index = 0
         for face in selection_obj.SubObjects:
             sub_element_name = selection_obj.SubElementNames[index]
-            component = _get_component_from_sub_element(selection_obj, sub_element_name)
+            component = selection_obj.Object
             local_face_name = _get_local_sub_element_name(sub_element_name)
             try:
                 local_face = component.Shape.getElement(local_face_name)
