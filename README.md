@@ -76,6 +76,13 @@ current connection settings for its connection type, and **Delete** removes the 
 Global presets can also be reviewed and edited in the **Global connection presets** table in the
 same preferences page.
 
+### Assembly Workflow
+
+When working with the FreeCAD Assembly workbench, add the Assembly components (the `App::Link`
+instances) to Interlocking. The original components remain in the Assembly after generating a
+MultiJoin. A generated result such as `Base_tab` can then be selected with another Assembly
+component such as `Wall001` to create a further connection.
+
 ## Installation
 
 ### Recommended Install

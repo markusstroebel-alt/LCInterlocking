@@ -26,12 +26,19 @@ import FreeCAD
 import FreeCADGui
 
 
+def _debug(message):
+    FreeCAD.Console.PrintMessage("[LCInterlocking] %s\n" % message)
+
+
 def _get_component_from_sub_element(selection_obj, sub_element_name):
     if not sub_element_name or '.' not in sub_element_name:
         return selection_obj.Object
 
     component_name = sub_element_name.split('.', 1)[0]
     component = selection_obj.Object.Document.getObject(component_name)
+    if component:
+        _debug("Resolved selection path %s to component %s" %
+               (sub_element_name, component.Name))
     return component if component else selection_obj.Object
 
 
@@ -61,6 +68,8 @@ def _get_link_component_for_object(document, selected_object):
     for document_object in document.Objects:
         linked_object = getattr(document_object, 'LinkedObject', None)
         if linked_object and _contains_object(linked_object, selected_object):
+            _debug("Resolved feature %s to Assembly link %s" %
+                   (selected_object.Name, document_object.Name))
             return document_object
     return selected_object
 
@@ -91,6 +100,10 @@ def get_freecad_faces_objects_list():
                 local_face = component.Shape.getElement(local_face_name)
             except Exception:
                 local_face = face
+                _debug("Using selected face for %s.%s" %
+                       (component.Name, local_face_name))
+            _debug("Selected face %s on component %s" %
+                   (local_face_name, component.Name))
             face_obj_list.append({'freecad_object': component, 'face': local_face,
                                   'name': local_face_name})
             index += 1

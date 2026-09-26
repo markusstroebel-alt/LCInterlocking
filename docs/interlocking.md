@@ -50,6 +50,9 @@ Additional Information
   * In editing mode, parts and faces can can be visualized by selecting the in the treview of the tools. Then they can be displayed/hidden by tapping in the key "space".
   * Preview button allow to create a new document with interlocking parts without exiting tool. It's convenient to adjust connection parameters.
   * "Add same faces" works as "Add same parts", faces while share the same connection properties.
+  * Assembly components added as `App::Link` objects remain in their Assembly when a MultiJoin is
+    generated. The generated part, for example `Base_tab`, can be selected together with another
+    Assembly component, for example `Wall001`, to create a subsequent MultiJoin connection.
   * For "screw" connections, the nut pocket shape is defined by "Nut flat to flat" and "Nut height",
     both freely editable (suggested values are pre-filled from the screw dimensions, or from the
     last values used in the current session).

@@ -36,6 +36,14 @@ __dir__ = os.path.dirname(__file__)
 iconPath = os.path.join(__dir__, '../icons')
 
 
+def _debug(message):
+    FreeCAD.Console.PrintMessage("[LCInterlocking] %s\n" % message)
+
+
+def _is_link_object(obj):
+    return getattr(obj, 'LinkedObject', None) is not None
+
+
 class MultipleJoinGroup:
     def __init__(self, obj):
         obj.addProperty('App::PropertyPythonObject', 'parts').parts = PropertiesList()
@@ -138,7 +146,13 @@ class MultipleJoinGroup:
                 freecad_obj = document.getObject(cp_part.name)
                 freedac_origin_obj.append(freecad_obj)
                 cp_part.recomputeInit(freecad_obj)
-                groupObj.addObject(freecad_obj)
+                if _is_link_object(freecad_obj):
+                    _debug("Keeping Assembly link %s in its original container" %
+                           freecad_obj.Name)
+                else:
+                    groupObj.addObject(freecad_obj)
+                    _debug("Moved source part %s to %s" %
+                           (freecad_obj.Name, groupObj.Name))
                 parts.append(cp_part)
 
             fp.fromParts = freedac_origin_obj
@@ -165,6 +179,8 @@ class MultipleJoinGroup:
                     freecad_obj = document.addObject("Part::Feature", part.get_new_name())
                 fp.namesMapping[part.get_new_name()] = freecad_obj.Name
                 freecad_obj.Shape = part.get_shape()
+                _debug("Generated part %s from %s" %
+                       (freecad_obj.Name, part.get_new_name()))
                 freecad_objname_tokeep.append(freecad_obj.Name)
                 freecad_obj_generated.append(freecad_obj)
 
