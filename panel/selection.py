@@ -22,6 +22,7 @@
 # *                                                                         *
 # ***************************************************************************
 
+import FreeCAD
 import FreeCADGui
 
 
@@ -38,6 +39,30 @@ def _get_local_sub_element_name(sub_element_name):
     if not sub_element_name:
         return sub_element_name
     return sub_element_name.rstrip('.').split('.')[-1]
+
+
+def _contains_object(parent, child, visited=None):
+    if parent == child:
+        return True
+    if visited is None:
+        visited = set()
+    object_key = (parent.Document.Name, parent.Name)
+    if object_key in visited:
+        return False
+    visited.add(object_key)
+
+    for nested_object in getattr(parent, 'Group', []):
+        if _contains_object(nested_object, child, visited):
+            return True
+    return False
+
+
+def _get_link_component_for_object(document, selected_object):
+    for document_object in document.Objects:
+        linked_object = getattr(document_object, 'LinkedObject', None)
+        if linked_object and _contains_object(linked_object, selected_object):
+            return document_object
+    return selected_object
 
 
 def get_freecad_objects_list():
@@ -57,7 +82,10 @@ def get_freecad_faces_objects_list():
         index = 0
         for face in selection_obj.SubObjects:
             sub_element_name = selection_obj.SubElementNames[index]
-            component = selection_obj.Object
+            component = _get_link_component_for_object(FreeCAD.ActiveDocument,
+                                                       selection_obj.Object)
+            if component == selection_obj.Object:
+                component = _get_component_from_sub_element(selection_obj, sub_element_name)
             local_face_name = _get_local_sub_element_name(sub_element_name)
             try:
                 local_face = component.Shape.getElement(local_face_name)
