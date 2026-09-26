@@ -25,10 +25,29 @@
 import FreeCADGui
 
 
+def _get_component_from_sub_element(selection_obj, sub_element_name):
+    if not sub_element_name or '.' not in sub_element_name:
+        return selection_obj.Object
+
+    component_name = sub_element_name.split('.', 1)[0]
+    component = selection_obj.Object.Document.getObject(component_name)
+    return component if component else selection_obj.Object
+
+
+def _get_local_sub_element_name(sub_element_name):
+    if not sub_element_name:
+        return sub_element_name
+    return sub_element_name.rstrip('.').split('.')[-1]
+
+
 def get_freecad_objects_list():
     objs_sel = []
     for selection in FreeCADGui.Selection.getSelectionEx():
-        objs_sel.append(selection.Object)
+        sub_element_names = selection.SubElementNames or [None]
+        for sub_element_name in sub_element_names:
+            component = _get_component_from_sub_element(selection, sub_element_name)
+            if component not in objs_sel:
+                objs_sel.append(component)
     return objs_sel
 
 
@@ -37,7 +56,14 @@ def get_freecad_faces_objects_list():
     for selection_obj in FreeCADGui.Selection.getSelectionEx():
         index = 0
         for face in selection_obj.SubObjects:
-            face_obj_list.append({'freecad_object': selection_obj.Object, 'face': face,
-                                  'name': selection_obj.SubElementNames[index]})
+            sub_element_name = selection_obj.SubElementNames[index]
+            component = _get_component_from_sub_element(selection_obj, sub_element_name)
+            local_face_name = _get_local_sub_element_name(sub_element_name)
+            try:
+                local_face = component.Shape.getElement(local_face_name)
+            except Exception:
+                local_face = face
+            face_obj_list.append({'freecad_object': component, 'face': local_face,
+                                  'name': local_face_name})
             index += 1
     return face_obj_list

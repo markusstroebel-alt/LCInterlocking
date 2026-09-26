@@ -241,7 +241,8 @@ class TreePanel(object):
     def check_faces(self, faces):
         for face in faces:
             if not self.partsList.exist(face['freecad_object'].Name):
-                FreeCAD.Console.PrintError("Part of face %s is not configured" % face['name'])
+                FreeCAD.Console.PrintError("Part %s of face %s is not configured\n" %
+                                           (face['freecad_object'].Name, face['name']))
                 return False
             elif self.tabsList.exist(face['name']):
                 FreeCAD.Console.PrintError("Face %s already present" % face['name'])
