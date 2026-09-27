@@ -96,9 +96,9 @@ A face may be added more than once. Each entry is an independent connection, so 
 lists them separately as `Face1 (TongueGroove)` and `Face1 (Screw)`. Removing or editing one
 entry leaves the other entries on that face unchanged.
 
-When `TongueGroove` and `Screw` use the same face and counter part, the Screw slots and bore
-take priority. Their overlapping volume is removed from the tongue so the screw connection stays
-accessible.
+When `TongueGroove` and `Screw` or `ScrewInNut` use the same face and counter part, each
+`Tab - screw - Tab` group interrupts both the tongue and the groove. The Screw tabs, slots, and
+bore remain intact, so multiple screw positions create separate accessible interruptions.
 
 ### Tongue and Groove Connections
 

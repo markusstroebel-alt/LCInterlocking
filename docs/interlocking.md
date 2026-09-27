@@ -53,8 +53,9 @@ Additional Information
    * A face may be added more than once. Each entry is an independent connection, so a
      TongueGroove and a Screw connection can be combined on the same face. The tree shows
      separate entries for each connection; removing one does not remove the others.
-   * When a TongueGroove and a Screw use the same face and counter part, the Screw slots and
-     bore are cut from the tongue. This keeps the screw connection accessible.
+   * When a TongueGroove and a Screw or ScrewInNut use the same face and counter part, every
+     Tab - screw - Tab group interrupts both tongue and groove. The Screw tabs, slots, and bore
+     remain intact, including when several screw positions are configured.
   * "Detect contact faces" searches only the parts currently added to the open MultiJoin. It
     proposes planar, opposite, overlapping face pairs within the global contact tolerance. In the
     dialog, choose the side that creates the connection; selecting both sides of the same pair
