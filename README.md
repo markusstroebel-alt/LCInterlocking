@@ -100,7 +100,7 @@ Set **Height mode** to **Full material thickness** for a full-height tongue, or 
 to enter a smaller tongue height. **Height alignment** positions a custom tongue at the material
 center or at **Side A** / **Side B** of the selected face. Use Preview to verify the side in the
 current part orientation. **Groove bottom clearance** makes the groove deeper than the tongue;
-the existing slot-width tolerance provides the fit clearance around the tongue height.
+the existing slot-width tolerance provides fit clearance around the full tongue cross-section.
 
 Global TongueGroove defaults are available under **Edit -> Preferences -> LCInterlocking** and
 can be saved in connection presets.

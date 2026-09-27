@@ -65,7 +65,8 @@ Additional Information
     Choose full material thickness or a custom tongue height. "Height alignment" places a custom
     height at the center, Side A or Side B of the selected face's material thickness; use Preview
     to verify the chosen side in the current orientation. "Groove bottom clearance" makes the
-    groove deeper than the tongue, while the normal slot-width tolerance provides the height fit.
+    groove deeper than the tongue, while the normal slot-width tolerance provides clearance around
+    the full tongue cross-section.
     Defaults for these values are configured under Edit -> Preferences -> LCInterlocking.
   * Assembly components added as `App::Link` objects remain in their Assembly when a MultiJoin is
     generated. The generated part, for example `Base_tab`, can be selected together with another

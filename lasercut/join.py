@@ -342,14 +342,15 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
         # Limit the tongue to the counter part's actual overlap. This keeps a longer
         # selected face from creating a tongue outside a shorter groove side.
         tab_part.toAdd.append(intersecting_tongue)
-        groove_height_clearance = part_interactor.properties.hole_width_tolerance
-        groove_height = tongue_height + groove_height_clearance
+        groove_cross_section_clearance = part_interactor.properties.hole_width_tolerance
+        groove_width = tongue_width + groove_cross_section_clearance
+        groove_height = tongue_height + groove_cross_section_clearance
         groove_depth = tongue_depth + tab.tongue_groove_bottom_clearance
         groove_z_origin = _get_tongue_groove_z_origin(
             tab_part.properties.thickness, tongue_height,
-            tab.tongue_groove_alignment, groove_height_clearance)
-        groove = Part.makeBox(groove_depth, tongue_width, groove_height,
-                              FreeCAD.Vector(0.0, -tongue_width / 2.0,
+            tab.tongue_groove_alignment, groove_cross_section_clearance)
+        groove = Part.makeBox(groove_depth, groove_width, groove_height,
+                              FreeCAD.Vector(0.0, -groove_width / 2.0,
                                              groove_z_origin))
         if tab.dog_bone:
             groove = helper.make_dog_bone_on_limits_on_yz(groove, groove_depth)

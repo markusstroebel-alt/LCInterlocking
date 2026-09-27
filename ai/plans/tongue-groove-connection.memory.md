@@ -16,6 +16,9 @@
 - Nachbesserung fuer unterschiedlich lange Faces: Feder und Nut werden nun auf ihr tatsaechliches
   Schnittvolumen mit dem Gegenpart begrenzt. Eine laengere Master-Face erzeugt damit nur im
   Bereich der kuerzeren Nutseite Geometrie. Die isolierte Ueberlappungs-Simulation ist erfolgreich.
+- Nachbesserung fuer Slot-width-Tolerance: Die Nut erhaelt die Toleranz jetzt symmetrisch in
+  Face-Breite und Materialhoehe. Der Mass-Test bestaetigt bei `80 x 3 mm` Feder und `0.2 mm`
+  Toleranz eine zentrierte `80.2 x 3.2 mm` Nut.
 - Offener manueller FreeCAD-Test: volle Hoehe, halbe Hoehe zentriert, Side A, Side B und
   einen Assembly-Gegenpart mit Preview und finalem MultiJoin pruefen; dabei auch eine laengere
   Master-Face als die Nutseite testen.
