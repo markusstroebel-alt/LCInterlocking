@@ -306,27 +306,20 @@ def _get_tongue_groove_height(tab, material_face):
     return tongue_height
 
 
-def _get_tongue_groove_z_origin(material_thickness, tongue_height, alignment,
-                                clearance=0.0):
-    groove_height = tongue_height + clearance
+def _get_tongue_groove_z_origin(material_thickness, tongue_height, alignment):
     if alignment == "Center":
-        return -groove_height / 2.0
+        return -tongue_height / 2.0
     if alignment == "Side A":
-        return material_thickness / 2.0 - tongue_height - clearance
+        return material_thickness / 2.0 - tongue_height
     if alignment == "Side B":
         return -material_thickness / 2.0
     raise ValueError("Unknown TongueGroove height alignment %s" % alignment)
 
 
-def _get_tongue_groove_tongue_z_origin(material_thickness, tongue_height,
+def _get_tongue_groove_groove_z_origin(material_thickness, tongue_height,
                                        alignment, clearance):
-    tongue_z_origin = _get_tongue_groove_z_origin(material_thickness, tongue_height,
-                                                   alignment)
-    if alignment == "Side A":
-        return tongue_z_origin - clearance / 2.0
-    if alignment == "Side B":
-        return tongue_z_origin + clearance / 2.0
-    return tongue_z_origin
+    return _get_tongue_groove_z_origin(material_thickness, tongue_height,
+                                       alignment) - clearance / 2.0
 
 
 def make_tongue_groove_join(tab, tab_part, other_parts):
@@ -350,11 +343,9 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
             continue
 
         groove_cross_section_clearance = part_interactor.properties.hole_width_tolerance
-        tongue_z_origin = _get_tongue_groove_tongue_z_origin(
-            tab_part.properties.thickness, tongue_height, tab.tongue_groove_alignment,
-            groove_cross_section_clearance)
         tongue = Part.makeBox(tongue_depth, tongue_width, tongue_height,
-                              FreeCAD.Vector(0.0, -tongue_width / 2.0, tongue_z_origin))
+                              FreeCAD.Vector(0.0, -tongue_width / 2.0,
+                                             probe_z_origin))
         tongue_transformed = helper.transform_part(tongue, tab)
         intersecting_tongue = part_interactor.properties.freecad_object.Shape.common(
             tongue_transformed)
@@ -364,7 +355,7 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
         groove_width = tongue_width + groove_cross_section_clearance
         groove_height = tongue_height + groove_cross_section_clearance
         groove_depth = tongue_depth + tab.tongue_groove_bottom_clearance
-        groove_z_origin = _get_tongue_groove_z_origin(
+        groove_z_origin = _get_tongue_groove_groove_z_origin(
             tab_part.properties.thickness, tongue_height,
             tab.tongue_groove_alignment, groove_cross_section_clearance)
         groove = Part.makeBox(groove_depth, groove_width, groove_height,
