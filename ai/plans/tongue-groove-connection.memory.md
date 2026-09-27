@@ -23,6 +23,11 @@
   erweitert ausschliesslich den Nutkoerper um seine Nennkontur. Bei `0.2 mm` Toleranz wird die
   Nut auf jeder Seite um `0.1 mm` erweitert; die Feder bleibt buendig auf der gewaehlten Seite.
   Die isolierte Simulation ist erfolgreich.
+- Log-Auswertung bei zwei Faces: `Wall.Face4` verbindet sich mit `Wall002`; `Wall.Face1` prueft
+  `Wall002` und `Base`, findet aber in der positiven Face-Normalenrichtung keine Ueberlappung.
+  Nachbesserung: TongueGroove prueft nun zuerst die bisherige Richtung und bei fehlender
+  Ueberlappung die Gegenrichtung. Die erste passende Richtung gilt sowohl fuer Feder als auch
+  Nut. Die isolierte Rueckwaertsrichtungs-Simulation ist erfolgreich.
 - Offener manueller FreeCAD-Test: volle Hoehe, halbe Hoehe zentriert, Side A, Side B und
   einen Assembly-Gegenpart mit Preview und finalem MultiJoin pruefen; dabei auch eine laengere
   Master-Face als die Nutseite testen.

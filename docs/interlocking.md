@@ -62,6 +62,9 @@ Additional Information
   * "TongueGroove" creates one continuous tongue over the full width of the selected master
     face and a matching groove in the intersecting part. "Groove depth" controls the tongue
     length and the groove depth, which is useful for a drawer bottom in a `10 mm` deep groove.
+    The selected face normal is used first; if it does not reach a counter part, the opposite
+    direction is used automatically. This supports multiple TongueGroove faces with opposing
+    normals on the same part.
     Choose full material thickness or a custom tongue height. "Height alignment" places a custom
     height at the center, Side A or Side B of the selected face's material thickness; use Preview
     to verify the chosen side in the current orientation. "Groove bottom clearance" makes the

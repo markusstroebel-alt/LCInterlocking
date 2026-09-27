@@ -96,6 +96,10 @@ and cut a matching groove into the intersecting part. The selected face always b
 part that receives the extension. Use **Groove depth** for the tongue length and matching groove
 depth, for example `10 mm` for a drawer bottom.
 
+The connection first follows the selected face normal and automatically uses the opposite direction
+when that is the only direction that reaches an intersecting counter part. This allows multiple
+faces on a part to form connections even when their normals point in opposite directions.
+
 Set **Height mode** to **Full material thickness** for a full-height tongue, or **Custom height**
 to enter a smaller tongue height. **Height alignment** positions a custom tongue at the material
 center or at **Side A** / **Side B** of the selected face. Use Preview to verify the side in the

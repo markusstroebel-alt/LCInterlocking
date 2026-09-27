@@ -93,8 +93,9 @@ nicht angezeigt und nicht verwendet.
 - `ai/plans/tongue-groove-connection.README.md`
 
 ## Annahmen und offene Fragen
-- Die Feder soll sich immer von der ausgewählten Master-Face weg in deren lokale
-  Normalenrichtung erstrecken. Dies entspricht dem bestehenden Tab-Prinzip.
+- Die Feder prueft zuerst die lokale Normalenrichtung der ausgewaehlten Master-Face. Falls sie
+  dort keinen Gegenpart trifft, wird automatisch die Gegenrichtung verwendet. Dies ermoeglicht
+  Verbindungen an mehreren Faces mit entgegengesetzten Normalen.
 - `Side A` und `Side B` sind im UI absichtlich nicht mit Weltkoordinaten wie oben oder
   unten benannt, weil diese je nach Bauteilorientierung nicht stabil waeren. Das Preview
   dient zur unmittelbaren Kontrolle der Lage.

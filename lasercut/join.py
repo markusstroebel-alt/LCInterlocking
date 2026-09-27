@@ -326,6 +326,12 @@ def _get_tongue_groove_groove_z_origin(material_thickness, tongue_height,
                                        alignment) - clearance / 2.0
 
 
+def _make_tongue_groove_box(depth, width, height, z_origin, direction):
+    x_origin = 0.0 if direction > 0 else -depth
+    return Part.makeBox(depth, width, height,
+                        FreeCAD.Vector(x_origin, -width / 2.0, z_origin))
+
+
 def make_tongue_groove_join(tab, tab_part, other_parts):
     tongue_depth = tab.tongue_groove_depth
     if tongue_depth <= 0.0:
@@ -337,24 +343,34 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
     tongue_width = tab.y_length
     probe_z_origin = _get_tongue_groove_z_origin(
         tab_part.properties.thickness, tongue_height, tab.tongue_groove_alignment)
-    tongue_probe = Part.makeBox(tongue_depth, tongue_width, tongue_height,
-                                FreeCAD.Vector(0.0, -tongue_width / 2.0, probe_z_origin))
 
     _debug("TongueGroove %s.%s: checking %d counter parts" %
            (tab.freecad_object.Name, tab.face_name, len(other_parts)))
     for part_interactor in other_parts:
-        tongue_probe_transformed = helper.transform_part(tongue_probe, tab)
-        if part_interactor.properties.freecad_object.Shape.common(
-                tongue_probe_transformed).Volume <= 0.001:
+        direction = None
+        for candidate_direction in (1, -1):
+            tongue_probe = _make_tongue_groove_box(
+                tongue_depth, tongue_width, tongue_height, probe_z_origin,
+                candidate_direction)
+            tongue_probe_transformed = helper.transform_part(tongue_probe, tab)
+            if part_interactor.properties.freecad_object.Shape.common(
+                    tongue_probe_transformed).Volume > 0.001:
+                direction = candidate_direction
+                break
+        if direction is None:
             _debug("TongueGroove %s.%s: no overlap with %s" %
                    (tab.freecad_object.Name, tab.face_name,
                     part_interactor.properties.freecad_object.Name))
             continue
 
+        if direction < 0:
+            _debug("TongueGroove %s.%s: using opposite face direction for %s" %
+                   (tab.freecad_object.Name, tab.face_name,
+                    part_interactor.properties.freecad_object.Name))
+
         groove_cross_section_clearance = part_interactor.properties.hole_width_tolerance
-        tongue = Part.makeBox(tongue_depth, tongue_width, tongue_height,
-                              FreeCAD.Vector(0.0, -tongue_width / 2.0,
-                                             probe_z_origin))
+        tongue = _make_tongue_groove_box(tongue_depth, tongue_width, tongue_height,
+                                         probe_z_origin, direction)
         tongue_transformed = helper.transform_part(tongue, tab)
         intersecting_tongue = part_interactor.properties.freecad_object.Shape.common(
             tongue_transformed)
@@ -367,9 +383,8 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
         groove_z_origin = _get_tongue_groove_groove_z_origin(
             tab_part.properties.thickness, tongue_height,
             tab.tongue_groove_alignment, groove_cross_section_clearance)
-        groove = Part.makeBox(groove_depth, groove_width, groove_height,
-                              FreeCAD.Vector(0.0, -groove_width / 2.0,
-                                             groove_z_origin))
+        groove = _make_tongue_groove_box(groove_depth, groove_width, groove_height,
+                         groove_z_origin, direction)
         if tab.dog_bone:
             groove = helper.make_dog_bone_on_limits_on_yz(groove, groove_depth)
         groove_transformed = helper.transform_part(groove, tab)
