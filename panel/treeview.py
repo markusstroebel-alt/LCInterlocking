@@ -114,6 +114,15 @@ class TreeModel(QtCore.QAbstractItemModel):
                 break
         return index_inserted
 
+    def update_tab_label(self, tab_name, show_name):
+        for part_item in self.rootItem.childItems:
+            for tab_item in part_item.childItems:
+                if tab_item.get_name() == tab_name:
+                    tab_item.itemData[1] = show_name
+                    tab_index = self.createIndex(tab_item.row(), 0, tab_item)
+                    self.dataChanged.emit(tab_index, tab_index)
+                    return
+
     def columnCount(self, parent):
         if parent.isValid():
             return parent.internalPointer().column_count()

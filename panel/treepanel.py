@@ -99,7 +99,8 @@ class TreePanel(object):
             self.model.append_part(item.name, item.label, bool(item.link_name))
 
         for item in self.faces:
-            self.model.append_tab(item.freecad_obj_name, item.tab_name, item.face_name, bool(item.link_name))
+            self.model.append_tab(item.freecad_obj_name, item.tab_name,
+                                  self.tabsList.get_display_name(item), bool(item.link_name))
 
     def getStandardButtons(self):
         buttons = QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel
@@ -249,15 +250,7 @@ class TreePanel(object):
                 FreeCAD.Console.PrintError("Part %s of face %s is not configured\n" %
                                            (face['freecad_object'].Name, face['name']))
                 return False
-            elif self._face_is_configured(face):
-                FreeCAD.Console.PrintError("Face %s.%s already present\n" %
-                                           (face['freecad_object'].Name, face['name']))
-                return False
         return True
-
-    def _face_is_configured(self, face):
-        tab_name = "%s.%s" % (face['freecad_object'].Name, face['name'])
-        return self.tabsList.exist(tab_name)
 
     def detect_contact_faces(self):
         self.check_is_in_active_view()
@@ -280,18 +273,17 @@ class TreePanel(object):
         if dialog.exec_() != QtGui.QDialog.Accepted:
             return
 
-        faces = [face for face in dialog.selected_faces()
-                 if not self._face_is_configured(face)]
+        faces = dialog.selected_faces()
         if not faces:
             QtGui.QMessageBox.information(self.tree_widget, "Contact faces",
-                                          "All selected faces are already configured.")
+                                          "No contact faces were selected.")
             return
 
         last_index = None
         for face in faces:
             item = self.tabsList.append(face, self.tab_type_box.currentText())
             last_index = self.model.append_tab(item.freecad_obj_name, item.tab_name,
-                                               item.face_name)
+                                               self.tabsList.get_display_name(item))
         _debug("Added %d detected contact faces as %s connections" %
                (len(faces), self.tab_type_box.currentText()))
         self.force_selection(last_index)
@@ -306,7 +298,8 @@ class TreePanel(object):
         for face in faces:
             try:
                 item = self.tabsList.append(face, self.tab_type_box.currentText())
-                last_index = self.model.append_tab(item.freecad_obj_name, item.tab_name, item.face_name)
+                last_index = self.model.append_tab(item.freecad_obj_name, item.tab_name,
+                                                   self.tabsList.get_display_name(item))
             except ValueError as e:
                 FreeCAD.Console.PrintError(e)
                 return
@@ -323,10 +316,12 @@ class TreePanel(object):
         try:
             face = faces[0]
             item = self.tabsList.append(face, self.tab_type_box.currentText())
-            index = self.model.append_tab(item.freecad_obj_name, item.tab_name, item.face_name)
+            index = self.model.append_tab(item.freecad_obj_name, item.tab_name,
+                                          self.tabsList.get_display_name(item))
             for face in faces[1:]:
                 sub_item = self.tabsList.append_link(face, item.tab_name)
-                self.model.append_tab(sub_item.freecad_obj_name, sub_item.tab_name, sub_item.face_name, True)
+                self.model.append_tab(sub_item.freecad_obj_name, sub_item.tab_name,
+                                      self.tabsList.get_display_name(sub_item), True)
 
         except ValueError as e:
             FreeCAD.Console.PrintError(e)
@@ -388,6 +383,16 @@ class TreePanel(object):
                 self.tree_view_widget.setExpanded(parent_index, True)
 
     def rebuild_tab_widgets(self, index):
+        self.save_items_properties()
+        for tree_index in self.tree_view_widget.selectionModel().selectedIndexes():
+            if tree_index.column() != 0:
+                continue
+            item = tree_index.internalPointer()
+            if item.type == TreeItem.TAB or item.type == TreeItem.TAB_LINK:
+                tab, unused_widget = self.tabsList.get(item.get_name())
+                if tab:
+                    self.model.update_tab_label(tab.tab_name,
+                                                self.tabsList.get_display_name(tab))
         self.selection_changed(None, None)
 
     def remove_items_widgets(self):

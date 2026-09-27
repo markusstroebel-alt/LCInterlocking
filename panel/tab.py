@@ -292,9 +292,7 @@ class TabsList(object):
                                        freecad_obj_name=face['freecad_object'].Name,
                                        face_name=name,
                                        tab_type=tab_type)
-
-        if self.exist(tab_properties.tab_name):
-            raise ValueError(tab_properties.tab_name + " already in interactor tabs list")
+        self._assign_connection_id(tab_properties)
 
         #widget = self.createWidgetFromTabProperties(tab_properties)
         self.faces.append(tab_properties)
@@ -311,13 +309,50 @@ class TabsList(object):
                                        face_name=name,
                                        tab_type=TabProperties.TYPE_NOT_DEFINED,
                                        link_name=src_tab_name)
-
-        if self.exist(tab_properties.tab_name):
-            raise ValueError(tab_properties.tab_name + " already in interactor tabs list")
+        self._assign_connection_id(tab_properties)
 
         self.faces.append(tab_properties)
         #self.faces_widget_list.append(TabLink(tab_properties))
         return self.faces[-1]#, self.faces_widget_list[-1]
+
+    def _assign_connection_id(self, tab_properties):
+        connection_base = "%s.%s" % (tab_properties.freecad_obj_name,
+                                      tab_properties.face_name)
+        used_ids = set(tab.connection_id for tab in self.faces
+                       if hasattr(tab, 'connection_id'))
+        connection_index = 1
+        connection_id = "%s#%d" % (connection_base, connection_index)
+        while connection_id in used_ids:
+            connection_index += 1
+            connection_id = "%s#%d" % (connection_base, connection_index)
+        tab_properties.connection_id = connection_id
+        tab_properties.tab_name = connection_id
+
+    def get_display_name(self, tab_properties):
+        tab_type = tab_properties.tab_type
+        if tab_properties.link_name:
+            master_tab, unused_widget = self.get(tab_properties.link_name)
+            if master_tab:
+                tab_type = master_tab.tab_type
+
+        matching_tabs = [tab for tab in self.faces
+                         if tab.freecad_obj_name == tab_properties.freecad_obj_name
+                         and tab.face_name == tab_properties.face_name
+                         and self._get_tab_type(tab) == tab_type]
+        type_label = tab_type
+        if len(matching_tabs) > 1:
+            type_label = "%s #%d" % (tab_type,
+                                      matching_tabs.index(tab_properties) + 1)
+        if tab_properties.link_name:
+            type_label = "%s, linked" % type_label
+        return "%s (%s)" % (tab_properties.face_name, type_label)
+
+    def _get_tab_type(self, tab_properties):
+        if tab_properties.link_name:
+            master_tab, unused_widget = self.get(tab_properties.link_name)
+            if master_tab:
+                return master_tab.tab_type
+        return tab_properties.tab_type
 
     def remove(self, name):
         found_index = None
@@ -355,11 +390,7 @@ class TabsList(object):
         return None, None
 
     def get_linked_tabs(self, name):
-        el_list = []
-        for tab in self.faces:
-            if isinstance(tab, TabLink) and tab.link_name == name:
-                el_list.append(tab)
-        return el_list
+        return [tab for tab in self.faces if tab.link_name == name]
 
     def __iter__(self):
         return iter(self.faces)
@@ -372,6 +403,7 @@ class TabsList(object):
                 new_tab = copy.deepcopy(tab_link)
                 new_tab.link_name = tab.link_name
                 new_tab.tab_name = tab.tab_name
+                new_tab.connection_id = tab.connection_id
                 new_tab.face_name = tab.face_name
                 new_tab.freecad_obj_name = tab.freecad_obj_name
                 new_tab.y_invert = tab.y_invert

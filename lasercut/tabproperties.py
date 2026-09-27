@@ -43,7 +43,8 @@ class TabProperties(helper.ObjectProperties):
     _allowed = ('face_name', 'y_length', 'thickness', 'tabs_width', 'tabs_number', 'tabs_shift',
                 'dog_bone', 'tab_dog_bone', 'screw_diameter', 'screw_length', 'screw_length_tol', 'makeScrew',
                 'y_invert', 'half_tab_ratio', 'interval_ratio', 'freecad_obj_name',
-                'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'transform_matrix',
+                'tab_type', 'group_id', 'description', 'link_name', 'tab_name', 'connection_id',
+                'transform_matrix',
                 'through_tabs', 'tab_length', 'tab_length_tolerance',
                 'nut_flat_flat', 'nut_height', 'nut_slot_overhang', 'thread_clearance',
                 'use_washer', 'washer_diameter', 'washer_thickness',
@@ -77,8 +78,11 @@ class TabProperties(helper.ObjectProperties):
         if not hasattr(self, 'face_name'):
             #self.face_name = self.freecad_face['name']
             raise ValueError("name not defined")
+        face_key = "%s.%s" % (self.freecad_obj_name, self.face_name)
+        if not hasattr(self, 'connection_id'):
+            self.connection_id = "%s#%d" % (face_key, self._count())
         if not hasattr(self, 'tab_name'):
-            self.tab_name = "%s.%s" % (self.freecad_obj_name, self.face_name)
+            self.tab_name = self.connection_id
         if not hasattr(self, 'description'):
             self.description = "%s.%s (%s)" % (self.freecad_obj_name, self.face_name, self.tab_type)
         if not hasattr(self, 'y_length') or not hasattr(self, 'thickness') or not hasattr(self, 'transform_matrix'):

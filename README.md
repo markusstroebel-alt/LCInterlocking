@@ -89,6 +89,13 @@ time to choose Tab, Screw, WoodScrew, ScrewInNut, or Continuous. Faces created b
 faces** keep following their master face. Set **Contact detection tolerance (mm)** under
 **Edit -> Preferences -> LCInterlocking**. The default is `0.01 mm`.
 
+### Multiple Connections per Face
+
+A face may be added more than once. Each entry is an independent connection, so for example a
+`TongueGroove` and a `Screw` connection can be combined on `Wall.Face1`. The MultiJoin tree
+lists them separately as `Face1 (TongueGroove)` and `Face1 (Screw)`. Removing or editing one
+entry leaves the other entries on that face unchanged.
+
 ### Tongue and Groove Connections
 
 Choose **TongueGroove** to extend the selected face as one continuous tongue over its full width

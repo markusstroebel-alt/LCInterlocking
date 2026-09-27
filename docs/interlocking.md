@@ -50,6 +50,9 @@ Additional Information
   * In editing mode, parts and faces can can be visualized by selecting the in the treview of the tools. Then they can be displayed/hidden by tapping in the key "space".
   * Preview button allow to create a new document with interlocking parts without exiting tool. It's convenient to adjust connection parameters.
   * "Add same faces" works as "Add same parts", faces while share the same connection properties.
+   * A face may be added more than once. Each entry is an independent connection, so a
+     TongueGroove and a Screw connection can be combined on the same face. The tree shows
+     separate entries for each connection; removing one does not remove the others.
   * "Detect contact faces" searches only the parts currently added to the open MultiJoin. It
     proposes planar, opposite, overlapping face pairs within the global contact tolerance. In the
     dialog, choose the side that creates the connection; selecting both sides of the same pair
