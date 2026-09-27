@@ -29,6 +29,10 @@ import lasercut.flextab as flextab
 import lasercut.helper as helper
 
 
+def _debug(message):
+    FreeCAD.Console.PrintMessage("[LCInterlocking] %s\n" % message)
+
+
 def get_slot_positions(tab_properties):
     slots_list = []
     interval_length = tab_properties.y_length / float(tab_properties.tabs_number)
@@ -336,10 +340,15 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
     tongue_probe = Part.makeBox(tongue_depth, tongue_width, tongue_height,
                                 FreeCAD.Vector(0.0, -tongue_width / 2.0, probe_z_origin))
 
+    _debug("TongueGroove %s.%s: checking %d counter parts" %
+           (tab.freecad_object.Name, tab.face_name, len(other_parts)))
     for part_interactor in other_parts:
         tongue_probe_transformed = helper.transform_part(tongue_probe, tab)
         if part_interactor.properties.freecad_object.Shape.common(
                 tongue_probe_transformed).Volume <= 0.001:
+            _debug("TongueGroove %s.%s: no overlap with %s" %
+                   (tab.freecad_object.Name, tab.face_name,
+                    part_interactor.properties.freecad_object.Name))
             continue
 
         groove_cross_section_clearance = part_interactor.properties.hole_width_tolerance
@@ -367,7 +376,13 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
         intersecting_groove = part_interactor.properties.freecad_object.Shape.common(
             groove_transformed)
         part_interactor.toRemove.append(intersecting_groove)
+        _debug("TongueGroove %s.%s: joined to %s" %
+               (tab.freecad_object.Name, tab.face_name,
+                part_interactor.properties.freecad_object.Name))
         break
+    else:
+        _debug("TongueGroove %s.%s: no counter part found" %
+               (tab.freecad_object.Name, tab.face_name))
     return
 
 
