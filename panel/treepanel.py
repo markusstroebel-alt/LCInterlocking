@@ -251,7 +251,8 @@ class TreePanel(object):
 
     def add_tabs(self):
         self.check_is_in_active_view()
-        faces = selection.get_freecad_faces_objects_list()
+        component_names = set(part.name for part in self.parts.lst)
+        faces = selection.get_freecad_faces_objects_list(component_names)
         last_index = None
         if self.check_faces(faces) is False:
             return
@@ -267,7 +268,8 @@ class TreePanel(object):
 
     def add_same_tabs(self):
         self.check_is_in_active_view()
-        faces = selection.get_freecad_faces_objects_list()
+        component_names = set(part.name for part in self.parts.lst)
+        faces = selection.get_freecad_faces_objects_list(component_names)
         index = None
         if self.check_faces(faces) is False or len(faces) == 0:
             return

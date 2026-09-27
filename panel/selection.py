@@ -64,13 +64,32 @@ def _contains_object(parent, child, visited=None):
     return False
 
 
-def _get_link_component_for_object(document, selected_object):
+def _get_link_component_for_object(document, selected_object,
+                                   preferred_component_names=None):
+    matching_components = []
     for document_object in document.Objects:
         linked_object = getattr(document_object, 'LinkedObject', None)
         if linked_object and _contains_object(linked_object, selected_object):
+            matching_components.append(document_object)
+
+    if preferred_component_names:
+        preferred_components = [component for component in matching_components
+                                if component.Name in preferred_component_names]
+        if len(preferred_components) == 1:
+            component = preferred_components[0]
+            _debug("Resolved feature %s to configured Assembly link %s" %
+                   (selected_object.Name, component.Name))
+            return component
+
+    if matching_components:
+        component = matching_components[0]
+        if len(matching_components) > 1:
+            _debug("Ambiguous Assembly links for feature %s: using %s" %
+                   (selected_object.Name, component.Name))
+        else:
             _debug("Resolved feature %s to Assembly link %s" %
-                   (selected_object.Name, document_object.Name))
-            return document_object
+                   (selected_object.Name, component.Name))
+        return component
     return selected_object
 
 
@@ -85,14 +104,15 @@ def get_freecad_objects_list():
     return objs_sel
 
 
-def get_freecad_faces_objects_list():
+def get_freecad_faces_objects_list(preferred_component_names=None):
     face_obj_list = []
     for selection_obj in FreeCADGui.Selection.getSelectionEx():
         index = 0
         for face in selection_obj.SubObjects:
             sub_element_name = selection_obj.SubElementNames[index]
-            component = _get_link_component_for_object(FreeCAD.ActiveDocument,
-                                                       selection_obj.Object)
+            component = _get_link_component_for_object(
+                FreeCAD.ActiveDocument, selection_obj.Object,
+                preferred_component_names)
             if component == selection_obj.Object:
                 component = _get_component_from_sub_element(selection_obj, sub_element_name)
             local_face_name = _get_local_sub_element_name(sub_element_name)

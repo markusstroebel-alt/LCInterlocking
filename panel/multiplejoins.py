@@ -44,6 +44,15 @@ def _is_link_object(obj):
     return getattr(obj, 'LinkedObject', None) is not None
 
 
+def _get_source_objects(fp):
+    source_objects = []
+    for part in fp.parts.lst:
+        source_object = fp.Document.getObject(part.name)
+        if source_object:
+            source_objects.append(source_object)
+    return source_objects
+
+
 class MultipleJoinGroup:
     def __init__(self, obj):
         obj.addProperty('App::PropertyPythonObject', 'parts').parts = PropertiesList()
@@ -68,14 +77,14 @@ class MultipleJoinGroup:
         if fp.edit:
             if not hasattr(fp, "fromParts"):
                 return
-            for obj in fp.fromParts:
+            for obj in _get_source_objects(fp):
                 obj.ViewObject.show()
             for obj in fp.generatedParts:
                 obj.ViewObject.hide()
         else:
             if not hasattr(fp, "fromParts"):
                 return
-            for obj in fp.fromParts:
+            for obj in _get_source_objects(fp):
                 obj.ViewObject.hide()
             for obj in fp.generatedParts:
                 obj.ViewObject.show()
@@ -139,12 +148,10 @@ class MultipleJoinGroup:
 
             fp.fromParts = []
             parts = []
-            freedac_origin_obj = []
-            freedac_origin_obj.append(groupObj)
+            freedac_origin_obj = [groupObj]
             for part in fp.parts.lst:
                 cp_part = copy.deepcopy(part)
                 freecad_obj = document.getObject(cp_part.name)
-                freedac_origin_obj.append(freecad_obj)
                 cp_part.recomputeInit(freecad_obj)
                 if _is_link_object(freecad_obj):
                     _debug("Keeping Assembly link %s in its original container" %

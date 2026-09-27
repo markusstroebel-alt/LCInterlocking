@@ -11,5 +11,13 @@
   eines externen Features zu seinem Assembly-Link sowie die Behandlung von Quellen und Ergebnissen.
 - Simulierte Auswahl eines externen `Pad` wird korrekt zu `Wall` aufgeloest. Python-Syntax,
   Editor-Diagnosen und `git diff --check` sind erfolgreich.
-- Offener Punkt: In FreeCAD pruefen, dass `Base` nach dem ersten MultiJoin im Assembly bleibt und
-  `Base_tab` mit `Wall001` in einem zweiten MultiJoin verbunden werden kann.
+- Manueller Test: Die Assembly-Links bleiben im Assembly, aber `fromParts` als
+  `App::PropertyLinkList` erzeugt eine unzulaessige Referenz von `MultiJoin` auf die Links im
+  Assembly. Die Auswertung von `Wall001.Pad.Face3` waehlt zudem bisher die erste Instanz `Wall`,
+  da beide Links auf dasselbe externe Body zeigen.
+- Nachbesserung: `fromParts` speichert nur noch die lokale Ursprungsgruppe; die Sichtbarkeit der
+  Quellen wird aus der serialisierten Teileliste bestimmt. Bei mehreren Links auf ein Quellteil
+  bevorzugt die Gesichtsauswahl die im aktuellen MultiJoin konfigurierte Instanz, etwa `Wall001`.
+- Syntax, Whitespace, Editor-Diagnosen und die simulierte Mehrfachinstanz-Auswahl sind erfolgreich.
+- Offener Punkt: In FreeCAD mit frisch erzeugten MultiJoins pruefen, dass die Scope-Warnung nicht
+  mehr erscheint und `Base_tab` mit `Wall001` verbunden werden kann.
