@@ -19,6 +19,9 @@
 - Nachbesserung fuer Slot-width-Tolerance: Die Nut erhaelt die Toleranz jetzt symmetrisch in
   Face-Breite und Materialhoehe. Der Mass-Test bestaetigt bei `80 x 3 mm` Feder und `0.2 mm`
   Toleranz eine zentrierte `80.2 x 3.2 mm` Nut.
+- Nachbesserung fuer Side A und Side B: Die Feder wird dort um die halbe Slot-width-Tolerance
+  zur Materialmitte verschoben. Bei `0.2 mm` Toleranz entstehen damit an beiden Nutseiten
+  jeweils `0.1 mm` Spiel; Center bleibt unveraendert. Die isolierte Simulation ist erfolgreich.
 - Offener manueller FreeCAD-Test: volle Hoehe, halbe Hoehe zentriert, Side A, Side B und
   einen Assembly-Gegenpart mit Preview und finalem MultiJoin pruefen; dabei auch eine laengere
   Master-Face als die Nutseite testen.
