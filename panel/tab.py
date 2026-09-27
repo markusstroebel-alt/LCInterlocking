@@ -77,6 +77,34 @@ class TabWidget(BaseTabWidget):
         BaseTabWidget.__init__(self, tab_properties)
 
 
+class TongueGrooveWidget(BaseTabWidget):
+
+    HEIGHT_MODES = ["Full material thickness", "Custom height"]
+    HEIGHT_ALIGNMENTS = ["Center", "Side A", "Side B"]
+
+    def __init__(self, tab_properties):
+        tab_properties.ensure_tongue_groove_properties()
+        BaseTabWidget.__init__(self, tab_properties)
+        self.widget_list = [
+            self._connection_type_widget(),
+            WidgetValue(type=float, name="y_length", show_name="Face width", widget=None),
+            WidgetValue(type=float, name="thickness", show_name="Material thickness", widget=None),
+            WidgetValue(type=float, name="tongue_groove_depth", show_name="Groove depth",
+                        widget=None, interval_value=[0.01, 3000.], step=0.5, decimals=2),
+            WidgetValue(type=list, name="tongue_groove_height_mode", show_name="Height mode",
+                        widget=None, interval_value=self.HEIGHT_MODES),
+            WidgetValue(type=float, name="tongue_groove_height", show_name="Tongue height",
+                        widget=None, interval_value=[0.01, 3000.], step=0.1, decimals=2,
+                        parent_name="tongue_groove_height_mode", parent_value=["Custom height"]),
+            WidgetValue(type=list, name="tongue_groove_alignment", show_name="Height alignment",
+                        widget=None, interval_value=self.HEIGHT_ALIGNMENTS),
+            WidgetValue(type=float, name="tongue_groove_bottom_clearance",
+                        show_name="Groove bottom clearance", widget=None,
+                        interval_value=[0.0, 300.], step=0.1, decimals=2),
+            WidgetValue(type=bool, name="dog_bone", show_name="Dog bone hole", widget=None),
+        ]
+
+
 class WoodScrewWidget(BaseTabWidget):
 
     def __init__(self, tab_properties):
@@ -249,6 +277,8 @@ class TabsList(object):
             widget = WoodScrewWidget(tab_properties)
         elif tab_type == TabProperties.TYPE_SCREW_IN_NUT:
             widget = ScrewInNutWidget(tab_properties)
+        elif tab_type == TabProperties.TYPE_TONGUE_GROOVE:
+            widget = TongueGrooveWidget(tab_properties)
         #elif tab_type == TabProperties.TYPE_FLEX:
         #    widget = TabFlexWidget(tab_properties)
         else:

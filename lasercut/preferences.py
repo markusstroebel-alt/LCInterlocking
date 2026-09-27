@@ -44,6 +44,11 @@ DEFAULT_USE_NUT_FLANGE_POCKET = False
 DEFAULT_NUT_FLANGE_DIAMETER = 12.0
 DEFAULT_NUT_FLANGE_DEPTH = 1.0
 DEFAULT_CONTACT_TOLERANCE = 0.01
+DEFAULT_TONGUE_GROOVE_DEPTH = 10.0
+DEFAULT_TONGUE_GROOVE_HEIGHT_MODE = "Full material thickness"
+DEFAULT_TONGUE_GROOVE_HEIGHT = 3.0
+DEFAULT_TONGUE_GROOVE_ALIGNMENT = "Center"
+DEFAULT_TONGUE_GROOVE_BOTTOM_CLEARANCE = 0.5
 
 
 def get_param_group():
@@ -156,3 +161,35 @@ def get_default_contact_tolerance():
 
 def set_default_contact_tolerance(contact_tolerance):
     get_param_group().SetFloat("ContactTolerance", contact_tolerance)
+
+
+def get_default_tongue_groove_depth():
+    return get_param_group().GetFloat("TongueGrooveDepth", DEFAULT_TONGUE_GROOVE_DEPTH)
+
+
+def get_default_tongue_groove_height_mode():
+    return get_param_group().GetString("TongueGrooveHeightMode",
+                                       DEFAULT_TONGUE_GROOVE_HEIGHT_MODE)
+
+
+def get_default_tongue_groove_height():
+    return get_param_group().GetFloat("TongueGrooveHeight", DEFAULT_TONGUE_GROOVE_HEIGHT)
+
+
+def get_default_tongue_groove_alignment():
+    return get_param_group().GetString("TongueGrooveAlignment",
+                                       DEFAULT_TONGUE_GROOVE_ALIGNMENT)
+
+
+def get_default_tongue_groove_bottom_clearance():
+    return get_param_group().GetFloat("TongueGrooveBottomClearance",
+                                       DEFAULT_TONGUE_GROOVE_BOTTOM_CLEARANCE)
+
+
+def set_tongue_groove_defaults(depth, height_mode, height, alignment, bottom_clearance):
+    param = get_param_group()
+    param.SetFloat("TongueGrooveDepth", depth)
+    param.SetString("TongueGrooveHeightMode", height_mode)
+    param.SetFloat("TongueGrooveHeight", height)
+    param.SetString("TongueGrooveAlignment", alignment)
+    param.SetFloat("TongueGrooveBottomClearance", bottom_clearance)

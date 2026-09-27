@@ -65,6 +65,13 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         self.nut_flange_depth_spin = self._create_spin(0., 300.)
         self.contact_tolerance_spin = self._create_spin(0., 100.)
         self.contact_tolerance_spin.setSingleStep(0.01)
+        self.tongue_groove_depth_spin = self._create_spin(0., 3000.)
+        self.tongue_groove_height_mode_combo = QtGui.QComboBox(self)
+        self.tongue_groove_height_mode_combo.addItems(["Full material thickness", "Custom height"])
+        self.tongue_groove_height_spin = self._create_spin(0., 3000.)
+        self.tongue_groove_alignment_combo = QtGui.QComboBox(self)
+        self.tongue_groove_alignment_combo.addItems(["Center", "Side A", "Side B"])
+        self.tongue_groove_bottom_clearance_spin = self._create_spin(0., 300.)
 
         self.presets_table = QtGui.QTableWidget(self)
         self.presets_table.setSortingEnabled(False)
@@ -95,6 +102,11 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         layout.addRow("ScrewInNut flange pocket diameter (mm)", self.nut_flange_diameter_spin)
         layout.addRow("ScrewInNut flange pocket depth (mm)", self.nut_flange_depth_spin)
         layout.addRow("Contact detection tolerance (mm)", self.contact_tolerance_spin)
+        layout.addRow("TongueGroove depth (mm)", self.tongue_groove_depth_spin)
+        layout.addRow("TongueGroove height mode", self.tongue_groove_height_mode_combo)
+        layout.addRow("TongueGroove custom height (mm)", self.tongue_groove_height_spin)
+        layout.addRow("TongueGroove height alignment", self.tongue_groove_alignment_combo)
+        layout.addRow("TongueGroove bottom clearance (mm)", self.tongue_groove_bottom_clearance_spin)
         layout.addRow("Global connection presets", self.presets_table)
         preset_buttons = QtGui.QHBoxLayout()
         preset_buttons.addWidget(self.add_preset_button)
@@ -128,6 +140,14 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         self.nut_flange_diameter_spin.setValue(preferences.get_default_nut_flange_diameter())
         self.nut_flange_depth_spin.setValue(preferences.get_default_nut_flange_depth())
         self.contact_tolerance_spin.setValue(preferences.get_default_contact_tolerance())
+        self.tongue_groove_depth_spin.setValue(preferences.get_default_tongue_groove_depth())
+        self._set_combo_value(self.tongue_groove_height_mode_combo,
+                              preferences.get_default_tongue_groove_height_mode())
+        self.tongue_groove_height_spin.setValue(preferences.get_default_tongue_groove_height())
+        self._set_combo_value(self.tongue_groove_alignment_combo,
+                              preferences.get_default_tongue_groove_alignment())
+        self.tongue_groove_bottom_clearance_spin.setValue(
+            preferences.get_default_tongue_groove_bottom_clearance())
         self.load_preset_table()
 
     def saveSettings(self):
@@ -146,7 +166,18 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
                                               self.nut_flange_diameter_spin.value(),
                                               self.nut_flange_depth_spin.value())
         preferences.set_default_contact_tolerance(self.contact_tolerance_spin.value())
+        preferences.set_tongue_groove_defaults(
+            self.tongue_groove_depth_spin.value(),
+            self.tongue_groove_height_mode_combo.currentText(),
+            self.tongue_groove_height_spin.value(),
+            self.tongue_groove_alignment_combo.currentText(),
+            self.tongue_groove_bottom_clearance_spin.value())
         self.save_preset_table()
+
+    def _set_combo_value(self, combo, value):
+        index = combo.findText(value)
+        if index >= 0:
+            combo.setCurrentIndex(index)
 
     def load_preset_table(self):
         rows = presets.get_preset_rows()

@@ -59,6 +59,14 @@ Additional Information
     faces" continue to use the type and shared settings of their master face.
   * "Contact detection tolerance (mm)" is a global setting under Edit -> Preferences ->
     LCInterlocking. Its default is `0.01 mm`.
+  * "TongueGroove" creates one continuous tongue over the full width of the selected master
+    face and a matching groove in the intersecting part. "Groove depth" controls the tongue
+    length and the groove depth, which is useful for a drawer bottom in a `10 mm` deep groove.
+    Choose full material thickness or a custom tongue height. "Height alignment" places a custom
+    height at the center, Side A or Side B of the selected face's material thickness; use Preview
+    to verify the chosen side in the current orientation. "Groove bottom clearance" makes the
+    groove deeper than the tongue, while the normal slot-width tolerance provides the height fit.
+    Defaults for these values are configured under Edit -> Preferences -> LCInterlocking.
   * Assembly components added as `App::Link` objects remain in their Assembly when a MultiJoin is
     generated. The generated part, for example `Base_tab`, can be selected together with another
     Assembly component, for example `Wall001`, to create a subsequent MultiJoin connection.

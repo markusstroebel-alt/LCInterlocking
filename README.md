@@ -89,6 +89,22 @@ time to choose Tab, Screw, WoodScrew, ScrewInNut, or Continuous. Faces created b
 faces** keep following their master face. Set **Contact detection tolerance (mm)** under
 **Edit -> Preferences -> LCInterlocking**. The default is `0.01 mm`.
 
+### Tongue and Groove Connections
+
+Choose **TongueGroove** to extend the selected face as one continuous tongue over its full width
+and cut a matching groove into the intersecting part. The selected face always belongs to the
+part that receives the extension. Use **Groove depth** for the tongue length and matching groove
+depth, for example `10 mm` for a drawer bottom.
+
+Set **Height mode** to **Full material thickness** for a full-height tongue, or **Custom height**
+to enter a smaller tongue height. **Height alignment** positions a custom tongue at the material
+center or at **Side A** / **Side B** of the selected face. Use Preview to verify the side in the
+current part orientation. **Groove bottom clearance** makes the groove deeper than the tongue;
+the existing slot-width tolerance provides the fit clearance around the tongue height.
+
+Global TongueGroove defaults are available under **Edit -> Preferences -> LCInterlocking** and
+can be saved in connection presets.
+
 ### Assembly Workflow
 
 When working with the FreeCAD Assembly workbench, add the Assembly components (the `App::Link`

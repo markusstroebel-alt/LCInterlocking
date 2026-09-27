@@ -294,6 +294,67 @@ def make_tab_join(tab, tab_part, other_parts):
     return
 
 
+def _get_tongue_groove_height(tab, material_face):
+    if tab.tongue_groove_height_mode == "Full material thickness":
+        tongue_height = material_face.thickness
+    else:
+        tongue_height = tab.tongue_groove_height
+    if tongue_height <= 0.0:
+        raise ValueError("TongueGroove height must be positive")
+    if tongue_height > material_face.thickness:
+        raise ValueError("TongueGroove height cannot exceed the material thickness")
+    return tongue_height
+
+
+def _get_tongue_groove_z_origin(material_thickness, tongue_height, alignment,
+                                clearance=0.0):
+    groove_height = tongue_height + clearance
+    if alignment == "Center":
+        return -groove_height / 2.0
+    if alignment == "Side A":
+        return material_thickness / 2.0 - tongue_height - clearance
+    if alignment == "Side B":
+        return -material_thickness / 2.0
+    raise ValueError("Unknown TongueGroove height alignment %s" % alignment)
+
+
+def make_tongue_groove_join(tab, tab_part, other_parts):
+    tongue_depth = tab.tongue_groove_depth
+    if tongue_depth <= 0.0:
+        raise ValueError("TongueGroove depth must be positive")
+    if tab.tongue_groove_bottom_clearance < 0.0:
+        raise ValueError("TongueGroove bottom clearance cannot be negative")
+
+    tongue_height = _get_tongue_groove_height(tab, tab_part.properties)
+    tongue_width = tab.y_length
+    tongue_z_origin = _get_tongue_groove_z_origin(
+        tab_part.properties.thickness, tongue_height, tab.tongue_groove_alignment)
+    tongue = Part.makeBox(tongue_depth, tongue_width, tongue_height,
+                          FreeCAD.Vector(0.0, -tongue_width / 2.0, tongue_z_origin))
+
+    for part_interactor in other_parts:
+        intersect_test, tongue_transformed = helper.check_intersect(
+            tongue, tab, part_interactor.properties)
+        if not intersect_test:
+            continue
+
+        tab_part.toAdd.append(tongue_transformed)
+        groove_height_clearance = part_interactor.properties.hole_width_tolerance
+        groove_height = tongue_height + groove_height_clearance
+        groove_depth = tongue_depth + tab.tongue_groove_bottom_clearance
+        groove_z_origin = _get_tongue_groove_z_origin(
+            tab_part.properties.thickness, tongue_height,
+            tab.tongue_groove_alignment, groove_height_clearance)
+        groove = Part.makeBox(groove_depth, tongue_width, groove_height,
+                              FreeCAD.Vector(0.0, -tongue_width / 2.0,
+                                             groove_z_origin))
+        if tab.dog_bone:
+            groove = helper.make_dog_bone_on_limits_on_yz(groove, groove_depth)
+        part_interactor.toRemove.append(helper.transform_part(groove, tab))
+        break
+    return
+
+
 def make_continuous_tab_joins(tab, tab_part, other_parts):
     tabs_number = int(tab.tabs_number - 1)
     virtual_tab_length = float(tab.y_length / float(int(tabs_number + 1)))
@@ -459,6 +520,8 @@ def make_tabs_joins(parts, tabs):
             make_wood_screw_tab_join(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_SCREW_IN_NUT:
             make_screw_in_nut_join(tab, tab_part, other_parts)
+        elif tab.tab_type == TabProperties.TYPE_TONGUE_GROOVE:
+            make_tongue_groove_join(tab, tab_part, other_parts)
         else:
             raise ValueError("Unknown tab type")
     return parts_element

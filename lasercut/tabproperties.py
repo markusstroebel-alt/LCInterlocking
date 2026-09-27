@@ -35,9 +35,10 @@ class TabProperties(helper.ObjectProperties):
     TYPE_FLEX = 'Flexible'
     TYPE_WOOD_SCREW = 'WoodScrew'
     TYPE_SCREW_IN_NUT = 'ScrewInNut'
+    TYPE_TONGUE_GROOVE = 'TongueGroove'
     TYPE_NOT_DEFINED = 'Not Defined'
     CONNECTION_TYPES = (TYPE_TAB, TYPE_T_SLOT, TYPE_CONTINUOUS,
-                        TYPE_WOOD_SCREW, TYPE_SCREW_IN_NUT)
+                        TYPE_WOOD_SCREW, TYPE_SCREW_IN_NUT, TYPE_TONGUE_GROOVE)
 
     _allowed = ('face_name', 'y_length', 'thickness', 'tabs_width', 'tabs_number', 'tabs_shift',
                 'dog_bone', 'tab_dog_bone', 'screw_diameter', 'screw_length', 'screw_length_tol', 'makeScrew',
@@ -47,7 +48,10 @@ class TabProperties(helper.ObjectProperties):
                 'nut_flat_flat', 'nut_height', 'nut_slot_overhang', 'thread_clearance',
                 'use_washer', 'washer_diameter', 'washer_thickness',
                 'nut_outer_diameter', 'nut_depth', 'head_clearance',
-                'use_nut_flange_pocket', 'nut_flange_diameter', 'nut_flange_depth')
+                'use_nut_flange_pocket', 'nut_flange_diameter', 'nut_flange_depth',
+                'tongue_groove_depth', 'tongue_groove_height_mode',
+                'tongue_groove_height', 'tongue_groove_alignment',
+                'tongue_groove_bottom_clearance')
 
     __count = 0
 
@@ -125,6 +129,7 @@ class TabProperties(helper.ObjectProperties):
             self.tab_length = 0.0
         if not hasattr(self, 'tab_length_tolerance'):
             self.tab_length_tolerance = 0.5
+        self.ensure_tongue_groove_properties()
         if not hasattr(self, 'nut_flat_flat'):
             self.nut_flat_flat = self._last_nut_washer_values.get(
                 'nut_flat_flat', preferences.get_default_nut_flat_flat())
@@ -168,6 +173,20 @@ class TabProperties(helper.ObjectProperties):
     def set_tab_type(self, tab_type):
         if tab_type not in self.CONNECTION_TYPES:
             raise ValueError("Unknown type of tab %s" % tab_type)
+        if tab_type == self.TYPE_TONGUE_GROOVE:
+            self.ensure_tongue_groove_properties()
         self.tab_type = tab_type
         self.description = "%s.%s (%s)" % (self.freecad_obj_name,
                                              self.face_name, self.tab_type)
+
+    def ensure_tongue_groove_properties(self):
+        if not hasattr(self, 'tongue_groove_depth'):
+            self.tongue_groove_depth = preferences.get_default_tongue_groove_depth()
+        if not hasattr(self, 'tongue_groove_height_mode'):
+            self.tongue_groove_height_mode = preferences.get_default_tongue_groove_height_mode()
+        if not hasattr(self, 'tongue_groove_height'):
+            self.tongue_groove_height = preferences.get_default_tongue_groove_height()
+        if not hasattr(self, 'tongue_groove_alignment'):
+            self.tongue_groove_alignment = preferences.get_default_tongue_groove_alignment()
+        if not hasattr(self, 'tongue_groove_bottom_clearance'):
+            self.tongue_groove_bottom_clearance = preferences.get_default_tongue_groove_bottom_clearance()

@@ -34,7 +34,9 @@ KNOWN_PRESET_PROPERTIES = (
     "screw_length_tol", "nut_flat_flat", "nut_height", "nut_slot_overhang",
     "thread_clearance", "use_washer", "washer_diameter", "washer_thickness",
     "nut_outer_diameter", "nut_depth", "head_clearance", "use_nut_flange_pocket",
-    "nut_flange_diameter", "nut_flange_depth")
+    "nut_flange_diameter", "nut_flange_depth", "tongue_groove_depth",
+    "tongue_groove_height_mode", "tongue_groove_height", "tongue_groove_alignment",
+    "tongue_groove_bottom_clearance")
 
 
 def get_presets_file_path():
