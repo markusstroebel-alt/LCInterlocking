@@ -38,7 +38,8 @@ class BaseTabWidget(ParamWidget):
         self.obj_name = tab_properties.freecad_obj_name
         self.link_name = None
         ParamWidget.__init__(self, tab_properties)
-        self.widget_list.extend([WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
+        self.widget_list.extend([self._connection_type_widget(),
+                     WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
                                  WidgetValue(type=float, name="thickness", show_name="Thickness", widget=None),
                                  WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
                                  WidgetValue(type=float, name="tab_length", show_name="Tab length",
@@ -56,6 +57,15 @@ class BaseTabWidget(ParamWidget):
                                 WidgetValue(type=bool, name="dog_bone", show_name="Dog bone hole", widget=None),
                                 WidgetValue(type=bool, name="tab_dog_bone", show_name="Tab dog bone hole", widget=None)
                                  ])
+
+    def _connection_type_widget(self):
+        return WidgetValue(type=list, name="tab_type", show_name="Connection type",
+                           widget=None,
+                           interval_value=list(TabProperties.CONNECTION_TYPES))
+
+    def listchangeIndex(self, index):
+        ParamWidget.listchangeIndex(self, index)
+        self.object_property.set_tab_type(self.object_property.tab_type)
 
     def get_tab_type(self):
         return self.object_property.tab_type
@@ -153,7 +163,8 @@ class TabContinuousWidget(BaseTabWidget):
     def __init__(self, tab_properties):
         BaseTabWidget.__init__(self, tab_properties)
 
-        self.widget_list = [WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
+        self.widget_list = [self._connection_type_widget(),
+                     WidgetValue(type=float, name="y_length", show_name="Width", widget=None),
                             WidgetValue(type=float, name="thickness", show_name="Thickness", widget=None),
                     WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
                     WidgetValue(type=float, name="tab_length", show_name="Tab length", widget=None,
@@ -172,7 +183,8 @@ class TabFlexWidget(BaseTabWidget):
     def __init__(self, tab_properties):
         BaseTabWidget.__init__(self, tab_properties)
 
-        self.widget_list = [WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
+        self.widget_list = [self._connection_type_widget(),
+                     WidgetValue(type=bool, name="through_tabs", show_name="Through tabs", widget=None),
                     WidgetValue(type=float, name="tab_length", show_name="Tab length", widget=None,
                                         interval_value=[0.01, 3000.], step=0.5, decimals=2),
                             WidgetValue(type=float, name="tab_length_tolerance", show_name="Tab length tolerance",
@@ -331,12 +343,14 @@ class TabsList(object):
                 new_tab.link_name = tab.link_name
                 new_tab.tab_name = tab.tab_name
                 new_tab.face_name = tab.face_name
-                new_tab.description = tab.description
                 new_tab.freecad_obj_name = tab.freecad_obj_name
                 new_tab.y_invert = tab.y_invert
                 new_tab.transform_matrix = tab.transform_matrix
                 new_tab.thickness = tab.thickness
                 new_tab.y_length = tab.y_length
+                new_tab.description = "%s.%s (%s)" % (new_tab.freecad_obj_name,
+                                                        new_tab.face_name,
+                                                        new_tab.tab_type)
 
                 tabs_properties.append(new_tab)
             else:

@@ -50,6 +50,15 @@ Additional Information
   * In editing mode, parts and faces can can be visualized by selecting the in the treview of the tools. Then they can be displayed/hidden by tapping in the key "space".
   * Preview button allow to create a new document with interlocking parts without exiting tool. It's convenient to adjust connection parameters.
   * "Add same faces" works as "Add same parts", faces while share the same connection properties.
+  * "Detect contact faces" searches only the parts currently added to the open MultiJoin. It
+    proposes planar, opposite, overlapping face pairs within the global contact tolerance. In the
+    dialog, choose the side that creates the connection; selecting both sides of the same pair
+    would create duplicate tabs and pockets.
+  * Every master face has a "Connection type" selector. It can be changed after adding the face;
+    the editor updates to the parameters of the selected type. Faces linked through "Add same
+    faces" continue to use the type and shared settings of their master face.
+  * "Contact detection tolerance (mm)" is a global setting under Edit -> Preferences ->
+    LCInterlocking. Its default is `0.01 mm`.
   * Assembly components added as `App::Link` objects remain in their Assembly when a MultiJoin is
     generated. The generated part, for example `Base_tab`, can be selected together with another
     Assembly component, for example `Wall001`, to create a subsequent MultiJoin connection.

@@ -34,7 +34,8 @@ except ImportError:
 
 from panel.partmat import PartsList, CrossPartWidget, Part
 from panel.tab import TabsList
-from panel import selection
+from panel import contactfaces, selection
+from lasercut import preferences
 from lasercut.tabproperties import TabProperties
 from panel.treeview import TreeModel, TreeItem
 from panel.propertieslist import PropertiesList
@@ -43,6 +44,10 @@ from panel.propertieslist import PropertiesList
 PREVIEW_NONE = 0
 PREVIEW_NORMAL = 1
 PREVIEW_FAST = 2
+
+
+def _debug(message):
+    FreeCAD.Console.PrintMessage("[LCInterlocking] %s\n" % message)
 
 
 class TreePanel(object):
@@ -147,6 +152,9 @@ class TreePanel(object):
         h_box.addWidget(add_faces_button)
         h_box.addWidget(add_same_faces_button)
         self.tree_vbox.addLayout(h_box)
+        detect_contacts_button = QtGui.QPushButton('Detect contact faces', self.tree_widget)
+        detect_contacts_button.clicked.connect(self.detect_contact_faces)
+        self.tree_vbox.addWidget(detect_contacts_button)
         # tree
         self.selection_model = self.tree_view_widget.selectionModel()
         self.selection_model.selectionChanged.connect(self.selection_changed)
@@ -244,10 +252,52 @@ class TreePanel(object):
                 FreeCAD.Console.PrintError("Part %s of face %s is not configured\n" %
                                            (face['freecad_object'].Name, face['name']))
                 return False
-            elif self.tabsList.exist(face['name']):
-                FreeCAD.Console.PrintError("Face %s already present" % face['name'])
+            elif self._face_is_configured(face):
+                FreeCAD.Console.PrintError("Face %s.%s already present\n" %
+                                           (face['freecad_object'].Name, face['name']))
                 return False
         return True
+
+    def _face_is_configured(self, face):
+        tab_name = "%s.%s" % (face['freecad_object'].Name, face['name'])
+        return self.tabsList.exist(tab_name)
+
+    def detect_contact_faces(self):
+        self.check_is_in_active_view()
+        parts = []
+        for part in self.parts.lst:
+            freecad_object = self.active_document.getObject(part.name)
+            if freecad_object:
+                parts.append(freecad_object)
+
+        candidates = contactfaces.find_contact_faces(
+            parts, preferences.get_default_contact_tolerance())
+        _debug("Found %d contact-face candidates for %d parts (tolerance %.3f mm)" %
+               (len(candidates), len(parts), preferences.get_default_contact_tolerance()))
+        if not candidates:
+            QtGui.QMessageBox.information(self.tree_widget, "Contact faces",
+                                          "No planar contact faces were found.")
+            return
+
+        dialog = contactfaces.ContactFacesDialog(candidates, self.tree_widget)
+        if dialog.exec_() != QtGui.QDialog.Accepted:
+            return
+
+        faces = [face for face in dialog.selected_faces()
+                 if not self._face_is_configured(face)]
+        if not faces:
+            QtGui.QMessageBox.information(self.tree_widget, "Contact faces",
+                                          "All selected faces are already configured.")
+            return
+
+        last_index = None
+        for face in faces:
+            item = self.tabsList.append(face, self.tab_type_box.currentText())
+            last_index = self.model.append_tab(item.freecad_obj_name, item.tab_name,
+                                               item.face_name)
+        _debug("Added %d detected contact faces as %s connections" %
+               (len(faces), self.tab_type_box.currentText()))
+        self.force_selection(last_index)
 
     def add_tabs(self):
         self.check_is_in_active_view()
@@ -331,11 +381,17 @@ class TreePanel(object):
             self.edited_items.append(widget)
             groupx_box, grid = widget.get_group_box(self.tree_widget)
             self.edit_items_layout.addWidget(groupx_box)
+            if hasattr(widget, 'get_tab_type'):
+                widget.get_widget('tab_type').currentIndexChanged.connect(
+                    self.rebuild_tab_widgets)
 
         for index in tab_indexes:
             parent_index = index.parent()
             if parent_index.isValid():
                 self.tree_view_widget.setExpanded(parent_index, True)
+
+    def rebuild_tab_widgets(self, index):
+        self.selection_changed(None, None)
 
     def remove_items_widgets(self):
         for cnt in reversed(range(self.edit_items_layout.count())):

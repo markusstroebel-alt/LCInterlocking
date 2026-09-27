@@ -76,6 +76,19 @@ current connection settings for its connection type, and **Delete** removes the 
 Global presets can also be reviewed and edited in the **Global connection presets** table in the
 same preferences page.
 
+### Contact Face Detection
+
+After adding the involved parts to a MultiJoin, use **Detect contact faces** to find planar,
+opposing faces that overlap within the configured contact tolerance. The dialog lists every
+candidate pair and lets you choose which side creates the connection. Only one side should be
+used for a pair, because the selected side creates the tabs while the opposite part receives the
+matching pockets.
+
+The new face is added to the usual connection list. Change its **Connection type** there at any
+time to choose Tab, Screw, WoodScrew, ScrewInNut, or Continuous. Faces created by **Add same
+faces** keep following their master face. Set **Contact detection tolerance (mm)** under
+**Edit -> Preferences -> LCInterlocking**. The default is `0.01 mm`.
+
 ### Assembly Workflow
 
 When working with the FreeCAD Assembly workbench, add the Assembly components (the `App::Link`

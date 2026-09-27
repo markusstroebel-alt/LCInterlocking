@@ -63,6 +63,8 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         self.use_nut_flange_pocket_check = QtGui.QCheckBox("", self)
         self.nut_flange_diameter_spin = self._create_spin(0., 300.)
         self.nut_flange_depth_spin = self._create_spin(0., 300.)
+        self.contact_tolerance_spin = self._create_spin(0., 100.)
+        self.contact_tolerance_spin.setSingleStep(0.01)
 
         self.presets_table = QtGui.QTableWidget(self)
         self.presets_table.setSortingEnabled(False)
@@ -92,6 +94,7 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         layout.addRow("Use ScrewInNut flange pocket", self.use_nut_flange_pocket_check)
         layout.addRow("ScrewInNut flange pocket diameter (mm)", self.nut_flange_diameter_spin)
         layout.addRow("ScrewInNut flange pocket depth (mm)", self.nut_flange_depth_spin)
+        layout.addRow("Contact detection tolerance (mm)", self.contact_tolerance_spin)
         layout.addRow("Global connection presets", self.presets_table)
         preset_buttons = QtGui.QHBoxLayout()
         preset_buttons.addWidget(self.add_preset_button)
@@ -124,6 +127,7 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
         self.use_nut_flange_pocket_check.setChecked(preferences.get_default_use_nut_flange_pocket())
         self.nut_flange_diameter_spin.setValue(preferences.get_default_nut_flange_diameter())
         self.nut_flange_depth_spin.setValue(preferences.get_default_nut_flange_depth())
+        self.contact_tolerance_spin.setValue(preferences.get_default_contact_tolerance())
         self.load_preset_table()
 
     def saveSettings(self):
@@ -141,6 +145,7 @@ class LCInterlockingPreferencesPage(QtGui.QWidget):
                                               self.use_nut_flange_pocket_check.isChecked(),
                                               self.nut_flange_diameter_spin.value(),
                                               self.nut_flange_depth_spin.value())
+        preferences.set_default_contact_tolerance(self.contact_tolerance_spin.value())
         self.save_preset_table()
 
     def load_preset_table(self):

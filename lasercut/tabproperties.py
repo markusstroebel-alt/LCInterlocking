@@ -36,6 +36,8 @@ class TabProperties(helper.ObjectProperties):
     TYPE_WOOD_SCREW = 'WoodScrew'
     TYPE_SCREW_IN_NUT = 'ScrewInNut'
     TYPE_NOT_DEFINED = 'Not Defined'
+    CONNECTION_TYPES = (TYPE_TAB, TYPE_T_SLOT, TYPE_CONTINUOUS,
+                        TYPE_WOOD_SCREW, TYPE_SCREW_IN_NUT)
 
     _allowed = ('face_name', 'y_length', 'thickness', 'tabs_width', 'tabs_number', 'tabs_shift',
                 'dog_bone', 'tab_dog_bone', 'screw_diameter', 'screw_length', 'screw_length_tol', 'makeScrew',
@@ -162,3 +164,10 @@ class TabProperties(helper.ObjectProperties):
         self.thickness = thickness.Length
         self.y_length = y_length.Length
         self.transform_matrix = helper.get_matrix_transform(freecad_face)
+
+    def set_tab_type(self, tab_type):
+        if tab_type not in self.CONNECTION_TYPES:
+            raise ValueError("Unknown type of tab %s" % tab_type)
+        self.tab_type = tab_type
+        self.description = "%s.%s (%s)" % (self.freecad_obj_name,
+                                             self.face_name, self.tab_type)

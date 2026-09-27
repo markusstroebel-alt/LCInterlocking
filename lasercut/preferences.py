@@ -43,6 +43,7 @@ DEFAULT_NUT_DEPTH = 8.0
 DEFAULT_USE_NUT_FLANGE_POCKET = False
 DEFAULT_NUT_FLANGE_DIAMETER = 12.0
 DEFAULT_NUT_FLANGE_DEPTH = 1.0
+DEFAULT_CONTACT_TOLERANCE = 0.01
 
 
 def get_param_group():
@@ -147,3 +148,11 @@ def set_screw_in_nut_defaults(nut_outer_diameter, nut_depth, use_nut_flange_pock
     param.SetBool("UseNutFlangePocket", use_nut_flange_pocket)
     param.SetFloat("NutFlangeDiameter", nut_flange_diameter)
     param.SetFloat("NutFlangeDepth", nut_flange_depth)
+
+
+def get_default_contact_tolerance():
+    return get_param_group().GetFloat("ContactTolerance", DEFAULT_CONTACT_TOLERANCE)
+
+
+def set_default_contact_tolerance(contact_tolerance):
+    get_param_group().SetFloat("ContactTolerance", contact_tolerance)
