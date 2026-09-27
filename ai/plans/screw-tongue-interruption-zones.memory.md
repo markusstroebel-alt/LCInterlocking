@@ -18,4 +18,7 @@
 - Geprueft: Der Dispatcher reicht den Kontext an `Screw` und `ScrewInNut`
   weiter. AST-Parse und `git diff --check` bestanden. Die einzigen
   Editor-Hinweise sind die bekannte fehlende `FreeCAD`-/`Part`-Umgebung.
-- Offen: Manueller FreeCAD-Test und Commit.
+- Commits: `c0cebc1` dokumentiert den Plan, `9432ee9` implementiert die
+  positionsgenauen Unterbrechungszonen.
+- Offen: Manueller FreeCAD-Test mit mehreren `Screw`- und `ScrewInNut`-
+  Positionen auf derselben Face zum selben Gegenpart.
