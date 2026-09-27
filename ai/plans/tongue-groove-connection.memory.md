@@ -13,5 +13,9 @@
   Der Gegenpart wird mit der bestehenden Intersectionslogik bestimmt.
 - Isolierte Tests fuer globale Defaults, Umwandlung eines alten Tab-Faces, die drei
   Hoehenlagen und den Fall `6 mm` Material / `3 mm` Side A / `10 mm` Tiefe sind erfolgreich.
+- Nachbesserung fuer unterschiedlich lange Faces: Feder und Nut werden nun auf ihr tatsaechliches
+  Schnittvolumen mit dem Gegenpart begrenzt. Eine laengere Master-Face erzeugt damit nur im
+  Bereich der kuerzeren Nutseite Geometrie. Die isolierte Ueberlappungs-Simulation ist erfolgreich.
 - Offener manueller FreeCAD-Test: volle Hoehe, halbe Hoehe zentriert, Side A, Side B und
-  einen Assembly-Gegenpart mit Preview und finalem MultiJoin pruefen.
+  einen Assembly-Gegenpart mit Preview und finalem MultiJoin pruefen; dabei auch eine laengere
+  Master-Face als die Nutseite testen.

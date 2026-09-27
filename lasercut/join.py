@@ -333,12 +333,15 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
                           FreeCAD.Vector(0.0, -tongue_width / 2.0, tongue_z_origin))
 
     for part_interactor in other_parts:
-        intersect_test, tongue_transformed = helper.check_intersect(
-            tongue, tab, part_interactor.properties)
-        if not intersect_test:
+        tongue_transformed = helper.transform_part(tongue, tab)
+        intersecting_tongue = part_interactor.properties.freecad_object.Shape.common(
+            tongue_transformed)
+        if intersecting_tongue.Volume <= 0.001:
             continue
 
-        tab_part.toAdd.append(tongue_transformed)
+        # Limit the tongue to the counter part's actual overlap. This keeps a longer
+        # selected face from creating a tongue outside a shorter groove side.
+        tab_part.toAdd.append(intersecting_tongue)
         groove_height_clearance = part_interactor.properties.hole_width_tolerance
         groove_height = tongue_height + groove_height_clearance
         groove_depth = tongue_depth + tab.tongue_groove_bottom_clearance
@@ -350,7 +353,10 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
                                              groove_z_origin))
         if tab.dog_bone:
             groove = helper.make_dog_bone_on_limits_on_yz(groove, groove_depth)
-        part_interactor.toRemove.append(helper.transform_part(groove, tab))
+        groove_transformed = helper.transform_part(groove, tab)
+        intersecting_groove = part_interactor.properties.freecad_object.Shape.common(
+            groove_transformed)
+        part_interactor.toRemove.append(intersecting_groove)
         break
     return
 
