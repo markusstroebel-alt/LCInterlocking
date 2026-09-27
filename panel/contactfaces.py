@@ -72,6 +72,10 @@ class ContactFacesDialog(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         self.candidates = candidates
         self.setWindowTitle("Contact faces")
+        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.WindowTitleHint |
+                            QtCore.Qt.WindowSystemMenuHint |
+                            QtCore.Qt.WindowCloseButtonHint)
+        self.setSizeGripEnabled(True)
 
         layout = QtGui.QVBoxLayout(self)
         self.table = QtGui.QTableWidget(len(candidates), 3, self)
@@ -81,6 +85,7 @@ class ContactFacesDialog(QtGui.QDialog):
         for row_index, candidate in enumerate(candidates):
             self._add_candidate_row(row_index, candidate)
         self.table.resizeColumnsToContents()
+        self.resize(self.table.horizontalHeader().length() + 40, 260)
         layout.addWidget(self.table)
 
         buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok |
