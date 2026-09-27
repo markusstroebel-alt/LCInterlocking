@@ -12,4 +12,9 @@
 - Geprueft: isolierter Kontexttest fuer drei Screw-Freiraeume auf gleicher Face
   und gleichem Gegenpart; abweichende Face und abweichender Gegenpart bleiben
   unveraendert. AST-Parse und `git diff --check` bestanden.
-- Offen: Editor-Diagnosen, finaler FreeCAD-Manuelltest und Commit.
+- Geprueft: keine neuen Editor-Diagnosen; die Hinweise auf `Part` und `FreeCAD`
+  sind die bekannte fehlende FreeCAD-Umgebung des Editors.
+- Commits: `f40085e` dokumentiert den Plan, `00f5a74` implementiert den
+  Schraubenfreiraum in TongueGroove.
+- Offen: finaler FreeCAD-Manuelltest mit TongueGroove plus Screw auf derselben
+  Face zum selben Gegenpart.
