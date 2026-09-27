@@ -33,6 +33,32 @@ def _debug(message):
     FreeCAD.Console.PrintMessage("[LCInterlocking] %s\n" % message)
 
 
+class JoinContext(object):
+    def __init__(self):
+        self.screw_clearances = []
+        self.tongue_targets = []
+
+    def register_screw_clearance(self, tab, counter_part, clearance):
+        self.screw_clearances.append((tab.freecad_object.Name, tab.face_name,
+                                      counter_part.get_name(), clearance))
+
+    def register_tongue_target(self, tab, tab_part, counter_part):
+        self.tongue_targets.append((tab.freecad_object.Name, tab.face_name,
+                                    counter_part.get_name(), tab_part))
+
+    def apply_screw_clearances_to_tongues(self):
+        clearance_count = 0
+        for source_name, face_name, counter_name, tab_part in self.tongue_targets:
+            for screw_source, screw_face, screw_counter, clearance in self.screw_clearances:
+                if (source_name == screw_source and face_name == screw_face
+                        and counter_name == screw_counter):
+                    tab_part.toRemove.append(clearance)
+                    clearance_count += 1
+        if clearance_count:
+            _debug("Removed %d Screw clearance volumes from TongueGroove additions" %
+                   clearance_count)
+
+
 def get_slot_positions(tab_properties):
     slots_list = []
     interval_length = tab_properties.y_length / float(tab_properties.tabs_number)
@@ -332,7 +358,7 @@ def _make_tongue_groove_box(depth, width, height, z_origin, direction):
                         FreeCAD.Vector(x_origin, -width / 2.0, z_origin))
 
 
-def make_tongue_groove_join(tab, tab_part, other_parts):
+def make_tongue_groove_join(tab, tab_part, other_parts, join_context=None):
     tongue_depth = tab.tongue_groove_depth
     if tongue_depth <= 0.0:
         raise ValueError("TongueGroove depth must be positive")
@@ -391,6 +417,8 @@ def make_tongue_groove_join(tab, tab_part, other_parts):
         intersecting_groove = part_interactor.properties.freecad_object.Shape.common(
             groove_transformed)
         part_interactor.toRemove.append(intersecting_groove)
+        if join_context:
+            join_context.register_tongue_target(tab, tab_part, part_interactor)
         _debug("TongueGroove %s.%s: joined to %s" %
                (tab.freecad_object.Name, tab.face_name,
                 part_interactor.properties.freecad_object.Name))
@@ -431,7 +459,8 @@ def make_continuous_tab_joins(tab, tab_part, other_parts):
     return
 
 
-def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance,
+                                join_context=None):
     # Shared by all screw-like tab types: creates the tabs (tenons) and their matching
     # holes, yielding (y, part_interactor) for each successfully matched slot position.
     slots_pos = get_slot_positions(tab)
@@ -466,24 +495,36 @@ def create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
                                                                   tab_part.properties, part_interactor.properties,
                                                                   tab.dog_bone)
 
-                part_interactor.toRemove.append(helper.transform_part(left_hole, tab))
-                part_interactor.toRemove.append(helper.transform_part(right_hole, tab))
+                left_hole_transformed = helper.transform_part(left_hole, tab)
+                right_hole_transformed = helper.transform_part(right_hole, tab)
+                part_interactor.toRemove.append(left_hole_transformed)
+                part_interactor.toRemove.append(right_hole_transformed)
+                if join_context:
+                    join_context.register_screw_clearance(tab, part_interactor,
+                                                          left_hole_transformed)
+                    join_context.register_screw_clearance(tab, part_interactor,
+                                                          right_hole_transformed)
 
                 yield y, part_interactor
                 break
 
 
-def make_tslot_tab_join(tab, tab_part, other_parts):
+def make_tslot_tab_join(tab, tab_part, other_parts, join_context=None):
     half_tab_distance = (tab.screw_diameter * tab.half_tab_ratio) + tab.tabs_width / 2.0
     screw_nut_spec = helper.ObjectProperties(screw_diameter=tab.screw_diameter,
                                               screw_length=tab.screw_length)
-    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts, half_tab_distance):
+    for y, part_interactor in create_tab_pairs_with_holes(tab, tab_part, other_parts,
+                                                           half_tab_distance, join_context):
         screw_way_hole_face = screw_way_on_face(tab_part.properties, part_interactor.properties,
                                                 screw_nut_spec, tab, y, tab.dog_bone)
         screw_way_hole_plane = screw_way_on_plane(part_interactor.properties, screw_nut_spec, y)
 
         tab_part.toRemove.append(helper.transform_part(screw_way_hole_face, tab))
-        part_interactor.toRemove.append(helper.transform_part(screw_way_hole_plane, tab))
+        screw_way_hole_plane_transformed = helper.transform_part(screw_way_hole_plane, tab)
+        part_interactor.toRemove.append(screw_way_hole_plane_transformed)
+        if join_context:
+            join_context.register_screw_clearance(tab, part_interactor,
+                                                  screw_way_hole_plane_transformed)
     return
 
 
@@ -536,6 +577,7 @@ def make_tabs_joins(parts, tabs):
         mat_element = helper.MaterialElement(part)
         parts_element.append(mat_element)
 
+    join_context = JoinContext()
     removeParts = {}
     #test to improve speed
     for tab in tabs:
@@ -557,7 +599,7 @@ def make_tabs_joins(parts, tabs):
         if tab.tab_type == TabProperties.TYPE_TAB:
             make_tab_join(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_T_SLOT:
-            make_tslot_tab_join(tab, tab_part, other_parts)
+            make_tslot_tab_join(tab, tab_part, other_parts, join_context)
         elif tab.tab_type == TabProperties.TYPE_CONTINUOUS:
             make_continuous_tab_joins(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_FLEX:
@@ -567,7 +609,8 @@ def make_tabs_joins(parts, tabs):
         elif tab.tab_type == TabProperties.TYPE_SCREW_IN_NUT:
             make_screw_in_nut_join(tab, tab_part, other_parts)
         elif tab.tab_type == TabProperties.TYPE_TONGUE_GROOVE:
-            make_tongue_groove_join(tab, tab_part, other_parts)
+            make_tongue_groove_join(tab, tab_part, other_parts, join_context)
         else:
             raise ValueError("Unknown tab type")
+    join_context.apply_screw_clearances_to_tongues()
     return parts_element

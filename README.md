@@ -96,6 +96,10 @@ A face may be added more than once. Each entry is an independent connection, so 
 lists them separately as `Face1 (TongueGroove)` and `Face1 (Screw)`. Removing or editing one
 entry leaves the other entries on that face unchanged.
 
+When `TongueGroove` and `Screw` use the same face and counter part, the Screw slots and bore
+take priority. Their overlapping volume is removed from the tongue so the screw connection stays
+accessible.
+
 ### Tongue and Groove Connections
 
 Choose **TongueGroove** to extend the selected face as one continuous tongue over its full width
