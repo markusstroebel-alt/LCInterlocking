@@ -78,21 +78,25 @@ try:
     second_shape = plate.copy()
     second_shape.Placement.Base = FreeCAD.Vector(120, 10, 0)
     second_visible = ExportObjectStub("SecondVisible", "same label", second_shape, True)
+    rotated_shape = plate.copy()
+    rotated_shape.Placement = FreeCAD.Placement(
+        FreeCAD.Vector(250, 0, 0), FreeCAD.Rotation(FreeCAD.Vector(0, 0, 1), 90))
+    rotated_visible = ExportObjectStub("RotatedVisible", "same label", rotated_shape, True)
     different_visible = ExportObjectStub("DifferentVisible", "different label",
                                          Part.makeBox(101, 50, 10), True)
     hidden = ExportObjectStub("Hidden", "hidden label", plate, False)
     axis = ExportObjectStub("XAxis", "X axis",
                             Part.makePolygon([FreeCAD.Vector(0, 0, 0),
                                               FreeCAD.Vector(10, 0, 0)]), True)
-    visible_document = ExportDocumentStub([first_visible, second_visible,
+    visible_document = ExportDocumentStub([first_visible, second_visible, rotated_visible,
                                            different_visible, hidden, axis])
     if visible_export_objects(visible_document) != [first_visible, second_visible,
-                                                     different_visible]:
+                                                     rotated_visible, different_visible]:
         raise AssertionError("Only visible solid parts may be exported")
     if grouped_visible_export_objects(visible_document) != [
-            [first_visible, second_visible], [different_visible]]:
+            [first_visible, second_visible, rotated_visible], [different_visible]]:
         raise AssertionError("Identical visible parts must be grouped by geometry")
-    if "MENGE 2" not in _view_text(first_visible, views[0], 2):
+    if "MENGE 3" not in _view_text(first_visible, views[0], 3):
         raise AssertionError("Grouped exports must label their quantity")
     label_lines = _wrapped_text_lines(
         "Balken_70x42X730 hole template | VORNE | MATERIAL 42.00 mm | "
