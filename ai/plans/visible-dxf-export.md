@@ -116,7 +116,8 @@ ohne eine weitere Python-Abhaengigkeit einzufuehren.
    Benutzer.
 - Eine Tasche ist in der ersten Version eine zur Frässeite parallele,
    innenliegende Bodenflaeche. Schräge oder gekruemmte Taschenflaechen werden
-   exportiert, aber nicht mit einer automatischen Tiefenangabe beschriftet.
+   nicht automatisch klassifiziert und muessen vor dem Fräsen manuell geprueft
+   werden.
 - Der Zielordner wird bei jedem Aufruf im Dialog abgefragt; die letzte Auswahl
   wird in dieser ersten Version nicht persistent gespeichert.
 - Sichtbarkeit folgt ausschließlich dem aktuellen Modellbaum-Status

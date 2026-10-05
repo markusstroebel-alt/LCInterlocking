@@ -31,8 +31,9 @@ The DXF uses Estlcam-oriented layers:
 * `TEXT` for the view labels
 
 Assign the desired tools and milling strategies to these layers in Estlcam. The exporter detects
-planar pocket floors; sloped or curved pockets are included in the geometry but do not receive an
 automatic depth layer.
+planar pocket floors. Sloped or curved pockets are not classified automatically and should be
+checked manually before machining.
 
 You can use inkscape to remove some unwanted lines (if exist) as line between tab and its parts. To do it, ungroup all, object to path, remove unwanted lines, join curves with very little tolerance and you can regroup all if you want.
 
