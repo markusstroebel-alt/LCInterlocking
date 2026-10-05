@@ -29,10 +29,10 @@ Objekte erzeugen daher doppelte DXF-Dateien.
 ## Vorgehen
 
 1. In `ExportPanel.py` einen placementsunabhängigen Geometrievergleich für
-   exportierbare Solids implementieren. Der Vergleich erhält eine stabile,
-   konservative Signatur; bei nicht sicher vergleichbaren Shapes verbleiben
-   Objekte in getrennten Gruppen. Eine normalisierte, fein aufgeloeste
-   Dreiecks-Signatur wird mit Volumen, Flaeche und Topologiezahlen verglichen;
+   exportierbare Solids implementieren. Kompakte Kenndaten zu Volumen, Flaeche,
+   Begrenzungsbox und Topologie dienen als Vorfilter; nur passende Kandidaten
+   werden mit einem gemeinsamen Volumenvergleich bestaetigt. Bei nicht sicher
+   vergleichbaren Shapes verbleiben Objekte in getrennten Gruppen.
 2. `visible_export_objects()` unverändert als Sichtbarkeitsfilter verwenden
    und in `export_visible_parts()` die Objekte vor dem Export gruppieren.
 3. `export_part_dxf()` und `_view_text()` um die Stückzahl der jeweiligen

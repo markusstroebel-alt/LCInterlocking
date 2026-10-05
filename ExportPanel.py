@@ -40,7 +40,7 @@ iconPath = os.path.join(__dir__, 'icons')
 
 PLANAR_NORMAL_TOLERANCE = 0.999
 POCKET_DEPTH_TOLERANCE = 0.01
-SHAPE_SIGNATURE_TOLERANCE = 0.001
+GEOMETRY_COMPARISON_TOLERANCE = 0.000001
 
 
 def _normalized(vector):
@@ -330,28 +330,32 @@ def visible_export_objects(document):
     return [obj for obj in document.Objects if _is_visible_export_object(obj)]
 
 
-def _shape_signature(shape):
-    """Return a conservative placement-independent signature for a solid shape."""
+def _normalized_shape(shape):
+    """Return a copy whose instance placement and translation are normalized."""
     normalized_shape = shape.copy()
     normalized_shape.Placement = FreeCAD.Placement()
     box = normalized_shape.BoundBox
+    normalized_shape.translate(FreeCAD.Vector(-box.XMin, -box.YMin, -box.ZMin))
+    return normalized_shape
+
+
+def _shape_signature(shape):
+    """Return compact geometry metadata for a duplicate-comparison prefilter."""
+    box = shape.BoundBox
+    return (len(shape.Solids), len(shape.Faces), len(shape.Edges),
+            round(shape.Volume, 6), round(shape.Area, 6), round(box.XLength, 6),
+            round(box.YLength, 6), round(box.ZLength, 6))
+
+
+def _shapes_match(first_shape, second_shape):
+    """Check candidate duplicates without creating a tessellation in memory."""
+    if abs(first_shape.Volume - second_shape.Volume) > GEOMETRY_COMPARISON_TOLERANCE:
+        return False
     try:
-        vertices, unused_triangles = normalized_shape.tessellate(
-            SHAPE_SIGNATURE_TOLERANCE)
+        overlap = first_shape.common(second_shape)
     except Exception:
-        return None
-    if not vertices:
-        return None
-
-    def coordinate(vertex):
-        return (round(vertex.x - box.XMin, 3),
-                round(vertex.y - box.YMin, 3),
-                round(vertex.z - box.ZMin, 3))
-
-    return (len(normalized_shape.Solids), len(normalized_shape.Faces),
-            len(normalized_shape.Edges), round(normalized_shape.Volume, 3),
-            round(normalized_shape.Area, 3), tuple(sorted(coordinate(vertex)
-                                                          for vertex in vertices)))
+        return False
+    return abs(overlap.Volume - first_shape.Volume) <= GEOMETRY_COMPARISON_TOLERANCE
 
 
 def grouped_visible_export_objects(document):
@@ -359,16 +363,21 @@ def grouped_visible_export_objects(document):
     groups_by_signature = {}
     groups = []
     for part in visible_export_objects(document):
-        signature = _shape_signature(part.Shape)
-        if signature is None:
+        try:
+            normalized_shape = _normalized_shape(part.Shape)
+        except Exception:
             groups.append([part])
             continue
-        group = groups_by_signature.get(signature)
-        if group is None:
-            group = []
-            groups_by_signature[signature] = group
+        signature = _shape_signature(normalized_shape)
+        candidate_groups = groups_by_signature.setdefault(signature, [])
+        for reference_shape, group in candidate_groups:
+            if _shapes_match(reference_shape, normalized_shape):
+                group.append(part)
+                break
+        else:
+            group = [part]
+            candidate_groups.append((normalized_shape, group))
             groups.append(group)
-        group.append(part)
     return groups
 
 
