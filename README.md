@@ -24,7 +24,7 @@ This panel appears when "Laser cut Interlocking" workbench is selected:
  * ![Illustration](docs/imgs/living_hinges.png) [Create bend surface with living hinges.](docs/living_hinges.md)
  * [Create hole templates from assembly hardware.](docs/hole_templates.md) (Hole templates tool)
  * ![Illustration](docs/imgs/export.png) [Project parts to 2D plan in order to export in SVG format.](docs/export.md) (Export tool)
- * [Export visible model-tree parts as labelled, layered DXF files for Estlcam.](docs/export.md)
+ * [Export visible model-tree parts as labelled, layered DXF files for Estlcam, grouped by identical geometry.](docs/export.md)
 
 ## Connection Guide
 

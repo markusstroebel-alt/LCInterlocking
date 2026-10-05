@@ -1,0 +1,20 @@
+# Fortschritt: Identische sichtbare Bauteile gruppieren
+
+## Entscheidung
+
+- Gleichheit wird nur fuer exportierbare Volumenkoerper ermittelt und ignoriert
+  deren Placement im Modell.
+- Unsichere Vergleiche bleiben getrennte Gruppen, damit keine verschiedenen
+  Fertigungsteile zusammengefasst werden.
+- Eine Gruppen-DXF verwendet die erste sichtbare Instanz als Namen und traegt
+  `MENGE <Anzahl>` im `TEXT`-Layer.
+
+## Stand
+
+- Plan freigegeben.
+- Feature-Branch `feature/visible-dxf-identical-grouping` erstellt.
+- Export gruppiert sichtbare Koerper mit gleicher normalisierter
+  Dreiecks-Signatur und uebergibt die Gruppengroesse an die DXF-Beschriftung.
+- Der echte FreeCAD-Test bestaetigt: zwei gleich geformte, verschieden
+  platzierte Koerper ergeben eine DXF mit `MENGE 2`; ein abweichender Koerper
+  bleibt getrennt.

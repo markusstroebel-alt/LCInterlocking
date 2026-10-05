@@ -18,6 +18,10 @@ Use **Export visible DXF** to create one DXF file for every part that is visible
 model tree. The current 3D selection is ignored. Hide construction objects and source parts with
 the space key before starting the command, then choose an output folder.
 
+Identical visible finished parts are grouped into one DXF file, even when their instances have
+different positions in the model. The outline text states the required quantity as `MENGE 2`, for
+example. Parts with different contours, through cuts or pockets remain separate files.
+
 Each DXF contains the required machining views of one part next to each other. A view combines the
 outside contour, through cuts and pockets for its machining side. Parts with pockets on opposite
 or additional sides receive additional labelled views in the same file. Labels are exported as

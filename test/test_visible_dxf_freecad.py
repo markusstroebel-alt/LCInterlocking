@@ -12,7 +12,8 @@ if workspace not in sys.path:
 
 from ExportPanel import (VisibleDxfExportCommand, export_part_dxf,
                          export_visible_parts, machining_views, pocket_layer_name,
-                         visible_export_objects, _wrapped_text_lines)
+                         visible_export_objects, grouped_visible_export_objects,
+                         _view_text, _wrapped_text_lines)
 
 
 class VisibilityStub:
@@ -74,14 +75,25 @@ try:
             raise AssertionError("DXF must contain the %s Estlcam layer" % layer_name)
 
     first_visible = ExportObjectStub("FirstVisible", "same label", plate, True)
-    second_visible = ExportObjectStub("SecondVisible", "same label", plate, True)
+    second_shape = plate.copy()
+    second_shape.Placement.Base = FreeCAD.Vector(120, 10, 0)
+    second_visible = ExportObjectStub("SecondVisible", "same label", second_shape, True)
+    different_visible = ExportObjectStub("DifferentVisible", "different label",
+                                         Part.makeBox(101, 50, 10), True)
     hidden = ExportObjectStub("Hidden", "hidden label", plate, False)
     axis = ExportObjectStub("XAxis", "X axis",
                             Part.makePolygon([FreeCAD.Vector(0, 0, 0),
                                               FreeCAD.Vector(10, 0, 0)]), True)
-    visible_document = ExportDocumentStub([first_visible, second_visible, hidden, axis])
-    if visible_export_objects(visible_document) != [first_visible, second_visible]:
+    visible_document = ExportDocumentStub([first_visible, second_visible,
+                                           different_visible, hidden, axis])
+    if visible_export_objects(visible_document) != [first_visible, second_visible,
+                                                     different_visible]:
         raise AssertionError("Only visible solid parts may be exported")
+    if grouped_visible_export_objects(visible_document) != [
+            [first_visible, second_visible], [different_visible]]:
+        raise AssertionError("Identical visible parts must be grouped by geometry")
+    if "MENGE 2" not in _view_text(first_visible, views[0], 2):
+        raise AssertionError("Grouped exports must label their quantity")
     label_lines = _wrapped_text_lines(
         "Balken_70x42X730 hole template | VORNE | MATERIAL 42.00 mm | "
         "TASCHE 17.00 mm | TASCHE 20.00 mm", 70, 3.5)
@@ -91,8 +103,8 @@ try:
     try:
         written_paths, errors = export_visible_parts(visible_document, output_directory)
         if errors or [os.path.basename(path) for path in written_paths] != [
-                "same_label.dxf", "same_label_2.dxf"]:
-            raise AssertionError("Visible exports need unique DXF names and no errors")
+                "same_label.dxf", "different_label.dxf"]:
+            raise AssertionError("Grouped exports need one DXF per geometry and no errors")
     finally:
         shutil.rmtree(output_directory)
 finally:

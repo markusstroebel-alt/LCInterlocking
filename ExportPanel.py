@@ -40,6 +40,7 @@ iconPath = os.path.join(__dir__, 'icons')
 
 PLANAR_NORMAL_TOLERANCE = 0.999
 POCKET_DEPTH_TOLERANCE = 0.01
+SHAPE_SIGNATURE_TOLERANCE = 0.001
 
 
 def _normalized(vector):
@@ -244,15 +245,17 @@ def _wrapped_text_lines(text, width, height):
     return lines
 
 
-def _view_text(part, view):
+def _view_text(part, view, quantity=1):
     text = [getattr(part, "Label", part.Name), _view_label(view["normal"]),
             "MATERIAL %.2f mm" % view["thickness"]]
     depths = sorted({round(pocket["depth"], 2) for pocket in view["pockets"]})
     text.extend("TASCHE %.2f mm" % depth for depth in depths)
+    if quantity > 1:
+        text.append("MENGE %d" % quantity)
     return " | ".join(text)
 
 
-def manufacturing_layer_shapes(part):
+def manufacturing_layer_shapes(part, quantity=1):
     """Build 2D manufacturing geometry grouped by Estlcam DXF layer name."""
     views = machining_views(part.Shape)
     layer_shapes = {}
@@ -272,7 +275,7 @@ def manufacturing_layer_shapes(part):
 
         text_height = max(2.0, min(6.0, box.XLength / 20.0))
         text_y = box.YLength + 2 * margin
-        for text_line in _wrapped_text_lines(_view_text(part, view),
+        for text_line in _wrapped_text_lines(_view_text(part, view, quantity),
                                              box.XLength, text_height):
             text_shape = _label_shape(
                 FreeCAD.ActiveDocument, text_line,
@@ -285,12 +288,12 @@ def manufacturing_layer_shapes(part):
     return layer_shapes
 
 
-def export_part_dxf(part, output_path):
+def export_part_dxf(part, output_path, quantity=1):
     """Export one part's labelled machining views to an Estlcam-ready DXF."""
     previous_document = FreeCAD.ActiveDocument
     export_document = FreeCAD.newDocument("LCInterlocking_dxf_export")
     try:
-        layer_shapes = manufacturing_layer_shapes(part)
+        layer_shapes = manufacturing_layer_shapes(part, quantity)
         export_objects = []
         for layer_name, shapes in layer_shapes.items():
             layer_object = export_document.addObject("Part::Feature", layer_name)
@@ -327,6 +330,48 @@ def visible_export_objects(document):
     return [obj for obj in document.Objects if _is_visible_export_object(obj)]
 
 
+def _shape_signature(shape):
+    """Return a conservative placement-independent signature for a solid shape."""
+    normalized_shape = shape.copy()
+    normalized_shape.Placement = FreeCAD.Placement()
+    box = normalized_shape.BoundBox
+    try:
+        vertices, unused_triangles = normalized_shape.tessellate(
+            SHAPE_SIGNATURE_TOLERANCE)
+    except Exception:
+        return None
+    if not vertices:
+        return None
+
+    def coordinate(vertex):
+        return (round(vertex.x - box.XMin, 3),
+                round(vertex.y - box.YMin, 3),
+                round(vertex.z - box.ZMin, 3))
+
+    return (len(normalized_shape.Solids), len(normalized_shape.Faces),
+            len(normalized_shape.Edges), round(normalized_shape.Volume, 3),
+            round(normalized_shape.Area, 3), tuple(sorted(coordinate(vertex)
+                                                          for vertex in vertices)))
+
+
+def grouped_visible_export_objects(document):
+    """Group visible solids with matching finished machining geometry."""
+    groups_by_signature = {}
+    groups = []
+    for part in visible_export_objects(document):
+        signature = _shape_signature(part.Shape)
+        if signature is None:
+            groups.append([part])
+            continue
+        group = groups_by_signature.get(signature)
+        if group is None:
+            group = []
+            groups_by_signature[signature] = group
+            groups.append(group)
+        group.append(part)
+    return groups
+
+
 def _dxf_output_path(output_directory, part, used_names):
     base_name = safe_file_name(getattr(part, "Label", part.Name))
     candidate_name = "%s.dxf" % base_name
@@ -340,14 +385,15 @@ def _dxf_output_path(output_directory, part, used_names):
 
 
 def export_visible_parts(document, output_directory):
-    """Write one labelled DXF for every visible leaf object in ``document``."""
+    """Write one labelled DXF for each group of visible identical parts."""
     written_paths = []
     errors = []
     used_names = set()
-    for part in visible_export_objects(document):
+    for group in grouped_visible_export_objects(document):
+        part = group[0]
         output_path = _dxf_output_path(output_directory, part, used_names)
         try:
-            export_part_dxf(part, output_path)
+            export_part_dxf(part, output_path, len(group))
             written_paths.append(output_path)
         except Exception as error:
             errors.append("%s: %s" % (part.Label, error))
