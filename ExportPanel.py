@@ -227,6 +227,23 @@ def _label_shape(document, text, position, height):
     return text_shape
 
 
+def _wrapped_text_lines(text, width, height):
+    """Wrap ShapeString text so it stays inside one machining view."""
+    character_width = max(height * 0.7, 0.1)
+    line_length = max(8, int(width / character_width))
+    lines = []
+    remaining = text
+    while len(remaining) > line_length:
+        split_at = remaining.rfind(" ", 0, line_length + 1)
+        if split_at <= 0:
+            split_at = line_length
+        lines.append(remaining[:split_at].rstrip())
+        remaining = remaining[split_at:].lstrip()
+    if remaining:
+        lines.append(remaining)
+    return lines
+
+
 def _view_text(part, view):
     text = [getattr(part, "Label", part.Name), _view_label(view["normal"]),
             "MATERIAL %.2f mm" % view["thickness"]]
@@ -253,13 +270,16 @@ def manufacturing_layer_shapes(part):
                                   for shape in shapes]
             layer_shapes.setdefault(layer_name, []).extend(transformed_shapes)
 
-        text_position = FreeCAD.Vector(x_position, box.YLength + 2 * margin, 0)
-        text_height = max(3.0, min(12.0, box.XLength / 20.0))
-        text_shape = _label_shape(
-            FreeCAD.ActiveDocument, _view_text(part, view),
-            text_position, text_height)
-        if text_shape is not None:
-            layer_shapes.setdefault("TEXT", []).append(text_shape)
+        text_height = max(2.0, min(6.0, box.XLength / 20.0))
+        text_y = box.YLength + 2 * margin
+        for text_line in _wrapped_text_lines(_view_text(part, view),
+                                             box.XLength, text_height):
+            text_shape = _label_shape(
+                FreeCAD.ActiveDocument, text_line,
+                FreeCAD.Vector(x_position, text_y, 0), text_height)
+            if text_shape is not None:
+                layer_shapes.setdefault("TEXT", []).append(text_shape)
+            text_y += text_height * 1.5
         x_position += box.XLength + margin
 
     return layer_shapes
@@ -292,6 +312,8 @@ def _is_visible_export_object(obj):
     if view_object is None or not getattr(view_object, "Visibility", False):
         return False
     if shape is None or shape.isNull():
+        return False
+    if not shape.Solids:
         return False
     if getattr(obj, "TypeId", "").startswith("App::DocumentObjectGroup"):
         return False

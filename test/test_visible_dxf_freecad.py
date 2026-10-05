@@ -12,7 +12,7 @@ if workspace not in sys.path:
 
 from ExportPanel import (VisibleDxfExportCommand, export_part_dxf,
                          export_visible_parts, machining_views, pocket_layer_name,
-                         visible_export_objects)
+                         visible_export_objects, _wrapped_text_lines)
 
 
 class VisibilityStub:
@@ -76,9 +76,17 @@ try:
     first_visible = ExportObjectStub("FirstVisible", "same label", plate, True)
     second_visible = ExportObjectStub("SecondVisible", "same label", plate, True)
     hidden = ExportObjectStub("Hidden", "hidden label", plate, False)
-    visible_document = ExportDocumentStub([first_visible, second_visible, hidden])
+    axis = ExportObjectStub("XAxis", "X axis",
+                            Part.makePolygon([FreeCAD.Vector(0, 0, 0),
+                                              FreeCAD.Vector(10, 0, 0)]), True)
+    visible_document = ExportDocumentStub([first_visible, second_visible, hidden, axis])
     if visible_export_objects(visible_document) != [first_visible, second_visible]:
-        raise AssertionError("Only objects visible in the model tree may be exported")
+        raise AssertionError("Only visible solid parts may be exported")
+    label_lines = _wrapped_text_lines(
+        "Balken_70x42X730 hole template | VORNE | MATERIAL 42.00 mm | "
+        "TASCHE 17.00 mm | TASCHE 20.00 mm", 70, 3.5)
+    if len(label_lines) < 2 or any(len(line) > 28 for line in label_lines):
+        raise AssertionError("Long view labels must wrap within the part width")
     output_directory = tempfile.mkdtemp(prefix="lci-visible-dxf-")
     try:
         written_paths, errors = export_visible_parts(visible_document, output_directory)
