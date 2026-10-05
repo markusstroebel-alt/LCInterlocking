@@ -22,7 +22,9 @@ This panel appears when "Laser cut Interlocking" workbench is selected:
  * ![Illustration](docs/imgs/crosspiece.png) [Create node for cross connection.](docs/crosspiece.md) (Crosspiece tool)
  * ![Illustration](docs/imgs/roundedboxgenerator.png) [Generate rounded box without connection.](docs/rounded_box_generator.md)
  * ![Illustration](docs/imgs/living_hinges.png) [Create bend surface with living hinges.](docs/living_hinges.md)
+ * [Create hole templates from assembly hardware.](docs/hole_templates.md) (Hole templates tool)
  * ![Illustration](docs/imgs/export.png) [Project parts to 2D plan in order to export in SVG format.](docs/export.md) (Export tool)
+ * [Export visible model-tree parts as labelled, layered DXF files for Estlcam.](docs/export.md)
 
 ## Connection Guide
 
@@ -128,6 +130,30 @@ When working with the FreeCAD Assembly workbench, add the Assembly components (t
 instances) to Interlocking. The original components remain in the Assembly after generating a
 MultiJoin. A generated result such as `Base_tab` can then be selected with another Assembly
 component such as `Wall001` to create a further connection.
+
+Nested Assembly components are supported as well. Select the visible component or face at the
+depth where it is used in the outer Assembly. LCInterlocking keeps the full selection path, so
+MultiJoin, Crosspiece, Living Hinge, Hole templates, and Export use the placed nested instance
+after a recompute instead of a similarly named source body. When several instances share a
+source body, select the concrete visible instance; ambiguous source-body selections are not
+guessed.
+
+### Hole Templates
+
+Use **Hole templates** to create new target bodies with the overlapping geometry of screws,
+bolts, hinges, slides, or other hardware removed. Select all involved bodies before starting the
+tool. In the task panel, move the hardware to **Template bodies** and the parts to machine to
+**Target bodies**, then inspect **Preview** and confirm the result.
+
+The source bodies remain unchanged. Each operation creates one editable `Hole template` node;
+its children are the generated target parts that actually intersect a template. Right-click the
+node and choose **Edit** to revise the roles and update its existing results. A body cannot have
+both roles, which prevents unintentional all-against-all boolean cuts. Assembly links are
+resolved to their placed components.
+
+While the dialog is open, select additional components in the 3D view and use
+**Add selected bodies**. New components are added to **Selected bodies**, where they can be
+assigned as templates or targets. Bodies already present in the operation are not duplicated.
 
 ## Installation
 

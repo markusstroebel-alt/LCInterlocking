@@ -27,8 +27,15 @@
   Legacy-DXF-Libraries.
 - Der echte FreeCAD-Test bestaetigt die Layer `KONTUR`, `TASCHE_2_00MM`,
   `TASCHE_3_00MM` und `TEXT` in einer erzeugten DXF.
+- `Export visible DXF` ist als eigener Command in der Export-Toolbar
+  registriert. Er fragt einen Zielordner ab, exportiert alle im Modellbaum
+  sichtbaren Blattobjekte und meldet einzelne Fehler gesammelt.
+- Mehrfach vorkommende Labels erhalten kollisionsfreie Dateinamen wie
+  `bauteil.dxf` und `bauteil_2.dxf`; ausgeblendete Objekte werden ausgelassen.
 
-## Naechste Schritte
-- Sichtbare Exportkandidaten aus dem Modellbaum ermitteln.
-- Zielordner-Dialog und sichtbaren Mehrfach-Exportcommand integrieren.
-- Dokumentation und manuelle GUI-Pruefung abschliessen.
+## Validierung
+- Der echte FreeCAD-Test prueft zweiseitige Taschen, Durchbrueche,
+  tiefenspezifische Layer, ShapeString-Text, Modellbaum-Sichtbarkeit,
+  Dateinamenskollisionen und Command-Aktivierung.
+- Manueller GUI-Check bleibt sinnvoll: sichtbare und ausgeblendete Teile mit
+  `Export visible DXF` in Estlcam importieren und die Layer zuordnen.

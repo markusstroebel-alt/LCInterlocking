@@ -56,12 +56,13 @@ static char * laser_xpm[] = {
         import ExportPanel
         import MakeBoxPanel
         import MakeRoundedBoxPanel
-        from panel import multiplejoins, crosspiece, livinghinge
+        from panel import multiplejoins, crosspiece, livinghinge, holetemplates
         from panel.preferencespage import LCInterlockingPreferencesPage
         all_command = ["make_box_command", "multiple_tabs_command", "crosspiece"]
         self.appendToolbar("Tab", all_command)
         self.appendToolbar("Hinge", ["make_rounded_box_command", "livinghinge"])
-        self.appendToolbar("Export", ["export_command"])
+        self.appendToolbar("Templates", ["hole_templates"])
+        self.appendToolbar("Export", ["export_command", "export_visible_dxf_command"])
         Gui.addPreferencePage(LCInterlockingPreferencesPage, "LCInterlocking")
 
  

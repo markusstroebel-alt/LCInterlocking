@@ -11,3 +11,7 @@ Materialstaerke und Taschentiefen. Die DXF-Layer `KONTUR`, `DURCHBRUCH`,
 
 Ausgeblendete Objekte werden nicht exportiert. Die aktuelle 3D-Auswahl hat
 keinen Einfluss auf den Export.
+
+Der Command **Export visible DXF** befindet sich in der Export-Toolbar. Nach
+der Wahl eines Zielordners erzeugt er eine DXF-Datei je sichtbarem Bauteil.
+Gleiche Bauteilnamen werden automatisch nummeriert.

@@ -30,6 +30,7 @@ import re
 import Draft
 import Part
 import importDXF
+from PySide import QtGui
 from lasercut.helper import biggest_area_faces
 from panel import selection
 
@@ -130,14 +131,19 @@ def machining_views(shape):
                 "face": outer_record["face"],
                 "normal": normal,
                 "pockets": pockets,
+                "thickness": thickness or 0.0,
             })
 
     if views:
         return views
 
     outer_record = max(records, key=lambda record: record["face"].Area)
+    opposite_coordinate = _opposite_surface_coordinate(records,
+                                                       outer_record["normal"])
+    thickness = 0.0 if opposite_coordinate is None else (
+        outer_record["coordinate"] - opposite_coordinate)
     return [{"face": outer_record["face"], "normal": outer_record["normal"],
-             "pockets": []}]
+             "pockets": [], "thickness": thickness}]
 
 
 def pocket_layer_name(depth):
@@ -221,9 +227,9 @@ def _label_shape(document, text, position, height):
     return text_shape
 
 
-def _view_text(part, view, thickness):
+def _view_text(part, view):
     text = [getattr(part, "Label", part.Name), _view_label(view["normal"]),
-            "MATERIAL %.2f mm" % thickness]
+            "MATERIAL %.2f mm" % view["thickness"]]
     depths = sorted({round(pocket["depth"], 2) for pocket in view["pockets"]})
     text.extend("TASCHE %.2f mm" % depth for depth in depths)
     return " | ".join(text)
@@ -247,13 +253,10 @@ def manufacturing_layer_shapes(part):
                                   for shape in shapes]
             layer_shapes.setdefault(layer_name, []).extend(transformed_shapes)
 
-        thickness = 0.0
-        for pocket in view["pockets"]:
-            thickness = max(thickness, pocket["depth"])
         text_position = FreeCAD.Vector(x_position, box.YLength + 2 * margin, 0)
         text_height = max(3.0, min(12.0, box.XLength / 20.0))
         text_shape = _label_shape(
-            FreeCAD.ActiveDocument, _view_text(part, view, thickness),
+            FreeCAD.ActiveDocument, _view_text(part, view),
             text_position, text_height)
         if text_shape is not None:
             layer_shapes.setdefault("TEXT", []).append(text_shape)
@@ -281,6 +284,52 @@ def export_part_dxf(part, output_path):
         FreeCAD.closeDocument(export_document.Name)
         if previous_document is not None:
             FreeCAD.setActiveDocument(previous_document.Name)
+
+
+def _is_visible_export_object(obj):
+    view_object = getattr(obj, "ViewObject", None)
+    shape = getattr(obj, "Shape", None)
+    if view_object is None or not getattr(view_object, "Visibility", False):
+        return False
+    if shape is None or shape.isNull():
+        return False
+    if getattr(obj, "TypeId", "").startswith("App::DocumentObjectGroup"):
+        return False
+    if getattr(obj, "TypeId", "") in ("App::Part", "Assembly::AssemblyObject",
+                                         "Assembly::AssemblyLink"):
+        return False
+    return True
+
+
+def visible_export_objects(document):
+    return [obj for obj in document.Objects if _is_visible_export_object(obj)]
+
+
+def _dxf_output_path(output_directory, part, used_names):
+    base_name = safe_file_name(getattr(part, "Label", part.Name))
+    candidate_name = "%s.dxf" % base_name
+    index = 2
+    while candidate_name.lower() in used_names or os.path.exists(
+            os.path.join(output_directory, candidate_name)):
+        candidate_name = "%s_%d.dxf" % (base_name, index)
+        index += 1
+    used_names.add(candidate_name.lower())
+    return os.path.join(output_directory, candidate_name)
+
+
+def export_visible_parts(document, output_directory):
+    """Write one labelled DXF for every visible leaf object in ``document``."""
+    written_paths = []
+    errors = []
+    used_names = set()
+    for part in visible_export_objects(document):
+        output_path = _dxf_output_path(output_directory, part, used_names)
+        try:
+            export_part_dxf(part, output_path)
+            written_paths.append(output_path)
+        except Exception as error:
+            errors.append("%s: %s" % (part.Label, error))
+    return written_paths, errors
 
 
 def get_freecad_object():
@@ -361,5 +410,39 @@ class ExportCommand:
         return new_parts_list
 
 
+class VisibleDxfExportCommand:
+
+    def GetResources(self):
+        return {'Pixmap': os.path.join(iconPath, 'export.xpm'),
+                'MenuText': "Export visible DXF",
+                'ToolTip': "Export visible model-tree parts as layered DXF files"}
+
+    def IsActive(self):
+        return FreeCAD.ActiveDocument is not None
+
+    def Activated(self):
+        output_directory = QtGui.QFileDialog.getExistingDirectory(
+            None, "Export visible DXF files")
+        if not output_directory:
+            return
+
+        written_paths, errors = export_visible_parts(
+            FreeCAD.ActiveDocument, str(output_directory))
+        if not written_paths:
+            QtGui.QMessageBox.warning(
+                None, "Export visible DXF",
+                "No visible exportable parts were found in the model tree.")
+            return
+
+        message = "%d DXF file(s) exported to:\n%s" % (
+            len(written_paths), output_directory)
+        if errors:
+            message += "\n\nSkipped parts:\n%s" % "\n".join(errors)
+            QtGui.QMessageBox.warning(None, "Export visible DXF", message)
+        else:
+            QtGui.QMessageBox.information(None, "Export visible DXF", message)
+
+
 if hasattr(FreeCADGui, 'addCommand'):
     FreeCADGui.addCommand('export_command', ExportCommand())
+    FreeCADGui.addCommand('export_visible_dxf_command', VisibleDxfExportCommand())

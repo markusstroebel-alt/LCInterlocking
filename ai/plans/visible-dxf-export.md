@@ -52,9 +52,10 @@ ohne eine weitere Python-Abhaengigkeit einzufuehren.
    einer `.dxf`-Datei angeordnet. Der Dateiname wird aus `Label`/`Name`
    gebildet, fuer Dateien bereinigt und bei Duplikaten stabil nummeriert.
 9. Die Geometrie jeder Ansicht wird in DXF-Layer aufgeteilt: `KONTUR` fuer die
-   Außenkontur, `DURCHBRUCH` fuer durchgehende Innenkonturen, `TASCHE` fuer
-   Taschengeometrie und `TEXT` fuer Beschriftungen. Das erlaubt in Estlcam die
-   direkte Zuordnung von Fräsoperationen pro Layer.
+   Außenkontur, `DURCHBRUCH` fuer durchgehende Innenkonturen und `TEXT` fuer
+   Beschriftungen. Taschengeometrie wird je gefundener Tiefe auf einen eigenen
+   Layer wie `TASCHE_8_00MM` gelegt. Das erlaubt in Estlcam die direkte
+   Zuordnung einer Fräsoperation pro Taschentiefe.
 10. Der Command meldet nach Abschluss die Anzahl geschriebener DXF-Dateien und
    jene sichtbaren Objekte, die keine exportierbare Shape hatten.
 11. Der bestehende manuelle Exportcommand bleibt unveraendert erhalten.
@@ -75,8 +76,8 @@ ohne eine weitere Python-Abhaengigkeit einzufuehren.
    Einzelansicht-Funktion ueberfuehren. Sie erzeugt für jede Frässeite immer
    Außenkontur und Durchbrüche sowie zusätzlich die Taschengeometrien aus der
    gewaehlten Richtung. Die erzeugten 2D-Objekte erhalten die DXF-Layer
-   `KONTUR`, `DURCHBRUCH`, `TASCHE` oder `TEXT`. Alle Ansichten eines Bauteils
-   werden in einem
+   `KONTUR`, `DURCHBRUCH`, `TEXT` oder einen aus der Taschentiefe abgeleiteten
+   `TASCHE_<TIEFE>MM`-Layer. Alle Ansichten eines Bauteils werden in einem
    temporaeren FreeCAD-Dokument neben- und kollisionsfrei platziert.
 5. Beschriftungen als Draft-Text mit Bauteilname, Seite, Materialstaerke und
    Taschentiefe erzeugen. Den DXF-Export mit `importDXF.export()` auf alle
@@ -109,9 +110,10 @@ ohne eine weitere Python-Abhaengigkeit einzufuehren.
 - Pro sichtbarer Komponente entsteht genau eine DXF. Sie enthält je Spannlage
    eine vollständige, beschriftete Bearbeitungsansicht mit Kontur, Durchbrüchen
    und den Taschen dieser Seite. Die Ansichten liegen nebeneinander.
-- Die DXF-Layer `KONTUR`, `DURCHBRUCH`, `TASCHE` und `TEXT` sind für Estlcam
-   gedacht. Die Zuordnung konkreter Frässtrategien und Werkzeuge bleibt in
-   Estlcam beim Benutzer.
+- Die DXF-Layer `KONTUR`, `DURCHBRUCH` und `TEXT` sowie ein eigener
+   `TASCHE_<TIEFE>MM`-Layer je Taschentiefe sind für Estlcam gedacht. Die
+   Zuordnung konkreter Frässtrategien und Werkzeuge bleibt in Estlcam beim
+   Benutzer.
 - Eine Tasche ist in der ersten Version eine zur Frässeite parallele,
    innenliegende Bodenflaeche. Schräge oder gekruemmte Taschenflaechen werden
    exportiert, aber nicht mit einer automatischen Tiefenangabe beschriftet.
