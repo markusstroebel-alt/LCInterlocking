@@ -29,6 +29,7 @@ import os
 from lasercut.join import make_tabs_joins
 from panel.treepanel import TreePanel, PREVIEW_NONE, PREVIEW_NORMAL, PREVIEW_FAST
 from panel.propertieslist import PropertiesList
+from panel import selection
 import json
 import copy
 
@@ -47,7 +48,7 @@ def _is_link_object(obj):
 def _get_source_objects(fp):
     source_objects = []
     for part in fp.parts.lst:
-        source_object = fp.Document.getObject(part.name)
+        source_object = selection.get_object_from_reference(fp.Document, part.name)
         if source_object:
             source_objects.append(source_object)
     return source_objects
@@ -112,14 +113,14 @@ class MultipleJoinGroup:
             tabs = []
             for part in fp.parts.lst:
                 cp_part = copy.deepcopy(part)
-                freecad_obj = document.getObject(cp_part.name)
+                freecad_obj = selection.get_object_from_reference(document, cp_part.name)
                 cp_part.recomputeInit(freecad_obj)
                 parts.append(cp_part)
 
             for tab in fp.faces.lst:
                 cp_tab = copy.deepcopy(tab)
-                freecad_obj = document.getObject(cp_tab.freecad_obj_name)
-                freecad_face = document.getObject(cp_tab.freecad_obj_name).Shape.getElement(cp_tab.face_name)
+                freecad_obj = selection.get_object_from_reference(document, cp_tab.freecad_obj_name)
+                freecad_face = freecad_obj.Shape.getElement(cp_tab.face_name)
                 cp_tab.recomputeInit(freecad_obj, freecad_face)
                 tabs.append(cp_tab)
 
@@ -151,9 +152,9 @@ class MultipleJoinGroup:
             freedac_origin_obj = [groupObj]
             for part in fp.parts.lst:
                 cp_part = copy.deepcopy(part)
-                freecad_obj = document.getObject(cp_part.name)
+                freecad_obj = selection.get_object_from_reference(document, cp_part.name)
                 cp_part.recomputeInit(freecad_obj)
-                if _is_link_object(freecad_obj):
+                if _is_link_object(freecad_obj) or selection.is_resolved_component(freecad_obj):
                     _debug("Keeping Assembly link %s in its original container" %
                            freecad_obj.Name)
                 else:
@@ -167,8 +168,8 @@ class MultipleJoinGroup:
             tabs = []
             for tab in fp.faces.lst:
                 cp_tab = copy.deepcopy(tab)
-                freecad_obj = document.getObject(cp_tab.freecad_obj_name)
-                freecad_face = document.getObject(cp_tab.freecad_obj_name).Shape.getElement(cp_tab.face_name)
+                freecad_obj = selection.get_object_from_reference(document, cp_tab.freecad_obj_name)
+                freecad_face = freecad_obj.Shape.getElement(cp_tab.face_name)
                 cp_tab.recomputeInit(freecad_obj, freecad_face)
                 tabs.append(cp_tab)
 

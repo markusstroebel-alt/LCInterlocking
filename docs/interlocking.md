@@ -81,6 +81,10 @@ Additional Information
   * Assembly components added as `App::Link` objects remain in their Assembly when a MultiJoin is
     generated. The generated part, for example `Base_tab`, can be selected together with another
     Assembly component, for example `Wall001`, to create a subsequent MultiJoin connection.
+    * Components inside a nested Assembly are supported. Select the visible nested component or
+      face in the outer Assembly; the complete path is retained for preview and later recomputes.
+      When the same source body appears in more than one place, select the concrete visible
+      instance rather than its underlying Body or Pad.
   * For "screw" connections, the nut pocket shape is defined by "Nut flat to flat" and "Nut height",
     both freely editable (suggested values are pre-filled from the screw dimensions, or from the
     last values used in the current session).

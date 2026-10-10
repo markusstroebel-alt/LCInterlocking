@@ -29,12 +29,26 @@ import os
 from lasercut.crosspart import make_cross_parts
 from panel.treepanel import TreePanel, PREVIEW_NONE, PREVIEW_NORMAL, PREVIEW_FAST
 from panel.propertieslist import PropertiesList
+from panel import selection
 import json
 import copy
 from PySide import QtCore, QtGui
 
 __dir__ = os.path.dirname(__file__)
 iconPath = os.path.join(__dir__, '../icons')
+
+
+def _is_link_object(obj):
+    return getattr(obj, 'LinkedObject', None) is not None
+
+
+def _get_source_objects(fp):
+    source_objects = []
+    for part in fp.parts.lst:
+        source_object = selection.get_object_from_reference(fp.Document, part.name)
+        if source_object:
+            source_objects.append(source_object)
+    return source_objects
 
 
 class CrossPieceGroup:
@@ -60,14 +74,14 @@ class CrossPieceGroup:
         if fp.edit:
             if not hasattr(fp, "fromParts"):
                 return
-            for obj in fp.fromParts:
+            for obj in _get_source_objects(fp):
                 obj.ViewObject.show()
             for obj in fp.generatedParts:
                 obj.ViewObject.hide()
         else:
             if not hasattr(fp, "fromParts"):
                 return
-            for obj in fp.fromParts:
+            for obj in _get_source_objects(fp):
                 obj.ViewObject.hide()
             for obj in fp.generatedParts:
                 obj.ViewObject.show()
@@ -92,7 +106,7 @@ class CrossPieceGroup:
             tabs = []
             for part in fp.parts.lst:
                 cp_part = copy.deepcopy(part)
-                freecad_obj = document.getObject(cp_part.name)
+                freecad_obj = selection.get_object_from_reference(document, cp_part.name)
                 cp_part.recomputeInit(freecad_obj)
                 parts.append(cp_part)
 
@@ -121,14 +135,15 @@ class CrossPieceGroup:
 
             fp.fromParts = []
             parts = []
-            freedac_origin_obj = []
-            freedac_origin_obj.append(groupObj)
+            freedac_origin_obj = [groupObj]
             for part in fp.parts.lst:
                 cp_part = copy.deepcopy(part)
-                freecad_obj = document.getObject(cp_part.name)
-                freedac_origin_obj.append(freecad_obj)
+                freecad_obj = selection.get_object_from_reference(document, cp_part.name)
+                root_object = selection.get_root_object_from_reference(document, cp_part.name)
                 cp_part.recomputeInit(freecad_obj)
-                groupObj.addObject(freecad_obj)
+                if not (_is_link_object(freecad_obj) or selection.is_resolved_component(freecad_obj)):
+                    groupObj.addObject(freecad_obj)
+                    freedac_origin_obj.append(root_object)
                 parts.append(cp_part)
 
             fp.fromParts = freedac_origin_obj

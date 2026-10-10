@@ -256,7 +256,7 @@ class TreePanel(object):
         self.check_is_in_active_view()
         parts = []
         for part in self.parts.lst:
-            freecad_object = self.active_document.getObject(part.name)
+            freecad_object = selection.get_object_from_reference(self.active_document, part.name)
             if freecad_object:
                 parts.append(freecad_object)
 
@@ -351,8 +351,9 @@ class TreePanel(object):
                 continue
             elif item.type == TreeItem.PART or item.type == TreeItem.PART_LINK :
                 part, widget = self.partsList.get(item.get_name())
-                fobj = self.active_document.getObject(part.name)
-                FreeCADGui.Selection.addSelection(fobj)
+                fobj, sub_element_name = selection.get_selection_arguments(
+                    self.active_document, part.name)
+                FreeCADGui.Selection.addSelection(fobj, sub_element_name)
 
                 self.edited_items.append(widget)
                 groupx_box, grid = widget.get_group_box(self.tree_widget)
@@ -367,8 +368,9 @@ class TreePanel(object):
                 raise ValueError("No tab named %s", item.get_name())
             if widget is None:
                 raise ValueError("No widget named %s", item.get_name())
-            fobj = self.active_document.getObject(tab.freecad_obj_name)
-            FreeCADGui.Selection.addSelection(fobj, tab.face_name)
+            fobj, sub_element_name = selection.get_selection_arguments(
+                self.active_document, tab.freecad_obj_name, tab.face_name)
+            FreeCADGui.Selection.addSelection(fobj, sub_element_name)
 
             self.edited_items.append(widget)
             groupx_box, grid = widget.get_group_box(self.tree_widget)

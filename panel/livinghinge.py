@@ -220,8 +220,10 @@ class LivingHinges:
             hinges_lst = []
             for hinge in fp.hinges.lst:
                 cp_hinge = copy.deepcopy(hinge)
-                freecad_obj_1 = document.getObject(cp_hinge.freecad_object_1_name)
-                freecad_obj_2 = document.getObject(cp_hinge.freecad_object_2_name)
+                freecad_obj_1 = selection.get_object_from_reference(
+                    document, cp_hinge.freecad_object_1_name)
+                freecad_obj_2 = selection.get_object_from_reference(
+                    document, cp_hinge.freecad_object_2_name)
                 freecad_face_1 = freecad_obj_1.Shape.getElement(cp_hinge.freecad_face_1_name)
                 freecad_face_2 = freecad_obj_2.Shape.getElement(cp_hinge.freecad_face_2_name)
                 cp_hinge.recomputeInit(freecad_obj_1, freecad_face_1, freecad_obj_2, freecad_face_2)
